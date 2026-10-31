@@ -48,12 +48,6 @@ const HERO_FEATURES = [
   { icon: ShieldIcon, color: '#22a35a', bg: '#e4f6ea' },
 ];
 
-const HERO_CARDS = [
-  { icon: ClockIcon, color: BLUE },
-  { icon: ShieldIcon, color: '#22a35a' },
-  { icon: CardIcon, color: BLUE },
-];
-
 const STEPS = [
   { icon: ListIcon, color: BLUE },
   { icon: UserIcon, color: BLUE },
@@ -357,12 +351,12 @@ export default function HomePage() {
             <Logo />
           </div>
 
-          <nav className="hidden xl:flex items-center gap-8 h-full">
+          <nav className="hidden xl:flex items-center gap-5 2xl:gap-8 h-full">
             {navLinks.map(link => (
               <a
                 key={link.id}
                 href={`#${link.id}`}
-                className={`relative h-full flex items-center text-[14px] font-medium transition-colors after:absolute after:left-0 after:right-0 after:bottom-[18px] after:h-[2px] after:rounded-full after:bg-[#1d6ff2] after:transition-transform after:duration-300 ${
+                className={`relative h-full flex items-center whitespace-nowrap text-[14px] font-medium transition-colors after:absolute after:left-0 after:right-0 after:bottom-[18px] after:h-[2px] after:rounded-full after:bg-[#1d6ff2] after:transition-transform after:duration-300 ${
                   active === link.id ? 'text-[#1d6ff2] after:scale-x-100' : 'text-[#0b1533] hover:text-[#1d6ff2] after:scale-x-0'
                 }`}
               >
@@ -371,11 +365,11 @@ export default function HomePage() {
             ))}
           </nav>
 
-          <div className="hidden xl:flex items-center gap-4">
+          <div className="hidden xl:flex items-center gap-2 2xl:gap-4">
             <LanguageSelect lang={lang} onChange={changeLang} label={t.language} />
             <a
               href="#telecharger"
-              className="inline-flex items-center gap-2.5 bg-[#1d6ff2] hover:bg-[#165fd6] hover:-translate-y-0.5 text-white text-[17px] font-semibold px-7 py-3.5 rounded-xl shadow-lg shadow-blue-600/20 transition-all"
+              className="inline-flex items-center gap-2.5 whitespace-nowrap bg-[#1d6ff2] hover:bg-[#165fd6] hover:-translate-y-0.5 text-white text-[15px] 2xl:text-[17px] font-semibold px-5 2xl:px-7 py-3 2xl:py-3.5 rounded-xl shadow-lg shadow-blue-600/20 transition-all"
             >
               <Download className="w-5 h-5" /> {t.downloadApp}
             </a>
@@ -425,7 +419,7 @@ export default function HomePage() {
           className="md:hidden block w-full h-auto"
         />
 
-        <div className={`relative max-w-[1440px] mx-auto px-5 lg:px-12 pt-6 md:pt-10 lg:pt-[clamp(32px,3.5vw,56px)] pb-10 lg:pb-16 h-full`}>
+        <div className="relative max-w-[1440px] mx-auto px-5 lg:px-12 md:py-10 lg:py-0 lg:pb-8 h-full lg:flex lg:items-center">
           {/* Physical mr-auto keeps the text over the banner's empty left side in Arabic too */}
           <div className={`${isAr ? 'lg:max-w-[min(580px,calc(47vw-100px))]' : 'lg:max-w-[min(620px,calc(47vw-48px))]'} lg:mr-auto`}>
             <h1 className={`sr-only md:not-sr-only animate-hero-in text-[42px] sm:text-[54px] lg:text-[clamp(46px,4.4vw,72px)] font-extrabold ${isAr ? 'leading-[1.25]' : 'leading-[1.02]'} tracking-[-0.03em]`}>
@@ -436,7 +430,7 @@ export default function HomePage() {
               {t.hero.subtitle}
             </p>
 
-            <div className="hidden md:grid animate-hero-in [animation-delay:220ms] mt-6 lg:mt-[clamp(16px,1.6vw,28px)] grid-cols-3 gap-3 lg:gap-4">
+            <div className="hidden md:grid animate-hero-in [animation-delay:220ms] mt-7 lg:mt-[clamp(24px,2.4vw,40px)] grid-cols-3 gap-3 lg:gap-4">
               {HERO_FEATURES.map((f, i) => (
                 <div key={i} className="flex items-center gap-2.5">
                   <span className="w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: f.bg }}>
@@ -449,49 +443,17 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-
-            <div className="md:mt-6 lg:mt-[clamp(16px,1.6vw,28px)] grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-              {SERVICES.map((s, i) => (
-                <a
-                  key={i}
-                  href="#services"
-                  style={{ animationDelay: `${300 + i * 50}ms` }}
-                  className="animate-hero-in group bg-white rounded-2xl shadow-[0_4px_18px_rgba(15,40,90,0.07)] border border-white hover:border-[#1d6ff2]/25 hover:-translate-y-1 hover:shadow-[0_10px_26px_rgba(15,40,90,0.12)] transition-[transform,box-shadow,border-color] flex flex-col items-center justify-center gap-2 py-3 lg:py-[clamp(6px,0.6vw,12px)] lg:gap-1.5"
-                >
-                  <span className="w-14 h-14 lg:w-[clamp(40px,3.3vw,56px)] lg:h-[clamp(40px,3.3vw,56px)] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: s.bg }}>
-                    <s.icon className="w-7 h-7 lg:w-[56%] lg:h-[56%]" style={{ color: s.color }} />
-                  </span>
-                  <span className="text-[13px] sm:text-[14px] lg:text-[clamp(12px,1vw,15px)] font-bold text-center px-1">{t.services[i].title}</span>
-                </a>
-              ))}
-            </div>
           </div>
         </div>
 
-        {/* Handwritten tagline + floating feature cards over the kitchen side of the banner */}
-        <div className="hidden xl:block absolute right-[2%] top-[6%] -rotate-[8deg] text-white text-center animate-hero-in [animation-delay:500ms]">
+        {/* Handwritten tagline over the kitchen side of the banner (2xl only: narrower screens put the technician's cap there) */}
+        <div className="hidden 2xl:block absolute right-[2%] top-[6%] -rotate-[8deg] text-white text-center animate-hero-in [animation-delay:500ms]">
           <p className={`${isAr ? `${cairo.className} font-extrabold text-[clamp(26px,2.2vw,40px)] leading-[1.25]` : `${caveat.className} text-[clamp(30px,2.6vw,46px)] leading-[0.95]`} drop-shadow-[0_2px_6px_rgba(0,0,0,0.25)]`}>
             {t.hero.tagline1}<br />{t.hero.tagline2}
           </p>
           <svg viewBox="0 0 220 24" className="w-[80%] ml-auto -mt-1" aria-hidden>
             <path d="M4 20 C 70 6, 150 4, 216 8" stroke="#3b9bff" strokeWidth="5" strokeLinecap="round" fill="none" />
           </svg>
-        </div>
-
-        <div className="hidden xl:flex absolute right-[3.8%] top-[30%] flex-col gap-4 w-[clamp(220px,15vw,270px)]">
-          {HERO_CARDS.map((c, i) => (
-            <div
-              key={i}
-              style={{ animationDelay: `${600 + i * 120}ms` }}
-              className="animate-hero-in bg-white rounded-xl shadow-[0_10px_30px_rgba(10,30,70,0.18)] px-4 py-3.5 flex items-center gap-3 hover:-translate-x-1 transition-transform"
-            >
-              <c.icon className="w-8 h-8 shrink-0" style={{ color: c.color }} />
-              <div className="min-w-0">
-                <p className="text-[14px] font-bold leading-tight">{t.hero.cards[i].title}</p>
-                <p className="text-[14px] text-[#33405a] leading-tight">{t.hero.cards[i].desc}</p>
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* Tablet: the phone + technician part of the banner under the text */}
