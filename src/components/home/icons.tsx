@@ -226,3 +226,12 @@ export const QuoteIcon: Icon = props => (
     <path d="M3 18.5v-5.3C3 8.6 5.4 5.6 9.6 4.5l.9 2c-2.3.9-3.5 2.6-3.6 4.9H10v7.1H3Zm10.9 0v-5.3c0-4.6 2.4-7.6 6.6-8.7l.9 2c-2.3.9-3.5 2.6-3.6 4.9h3.1v7.1h-7Z" />
   </Svg>
 );
+
+export const LockIcon: Icon = props => (
+  <Svg {...props}>
+    <path d="M7.5 10.5V7.8a4.5 4.5 0 0 1 9 0v2.7" stroke="currentColor" strokeOpacity=".6" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+    <rect x="4" y="10" width="16" height="12" rx="3" />
+    <circle cx="12" cy="15.3" r="1.7" fill="#fff" />
+    <rect x="11.2" y="15.6" width="1.6" height="3.3" rx=".8" fill="#fff" />
+  </Svg>
+);

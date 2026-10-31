@@ -1,6 +1,6 @@
 export type Role = 'USER' | 'WORKER' | 'ADMIN';
 export type AccountStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
-export type ReservationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type ReservationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
 
 export interface WorkerProfile {
   id: number;
@@ -47,6 +47,9 @@ export interface Reservation {
   emergency: boolean;
   estimatedPrice: number | null;
   actualPrice: number | null;
+  startTime?: string | null;
+  completedAt?: string | null;
+  cancelledAt?: string | null;
   createdAt: string;
   userInfo?: { id: number; name: string; avatar: string | null } | null;
   workerInfo?: { id: number; name: string; avatar: string | null } | null;

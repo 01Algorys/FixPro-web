@@ -939,8 +939,8 @@ export default function HomePage() {
           <div>
             <h4 className="text-white font-semibold text-sm">{t.footer.contact}</h4>
             <ul className="mt-4 space-y-3 text-sm text-gray-400">
-              <li className="flex items-center gap-2"><Phone className="w-4 h-4 shrink-0" /> <span dir="ltr">+216 12 345 678</span></li>
-              <li className="flex items-center gap-2"><Mail className="w-4 h-4 shrink-0" /> contact@fixpro.tn</li>
+              <li className="flex items-center gap-2"><Phone className="w-4 h-4 shrink-0" /> <span dir="ltr">+216 50 214 803</span></li>
+              <li className="flex items-center gap-2"><Mail className="w-4 h-4 shrink-0" /> fxproo.support@gmail.com</li>
               <li className="flex items-center gap-2"><MapPin className="w-4 h-4 shrink-0" /> {t.footer.address}</li>
             </ul>
             <form className="mt-5 flex items-center gap-2" onSubmit={e => e.preventDefault()}>
