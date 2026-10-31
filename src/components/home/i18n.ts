@@ -25,11 +25,6 @@ const fr = {
       { title: 'Rapide', desc: 'Intervention proche de vous' },
       { title: 'Fiable', desc: 'Techniciens vérifiés' },
     ],
-    cards: [
-      { title: 'Intervention rapide', desc: 'près de chez vous' },
-      { title: 'Techniciens', desc: 'qualifiés et vérifiés' },
-      { title: 'Paiement sécurisé', desc: 'dans l’application' },
-    ],
   },
   services: [
     { title: 'Plomberie', tags: ['Fuites', 'Robinetterie', 'Chauffe-eau', 'Débouchage'] },
@@ -186,11 +181,6 @@ const en: Dict = {
       { title: 'Fast', desc: 'Help close to you' },
       { title: 'Reliable', desc: 'Verified technicians' },
     ],
-    cards: [
-      { title: 'Fast service', desc: 'close to you' },
-      { title: 'Technicians', desc: 'qualified and verified' },
-      { title: 'Secure payment', desc: 'in the app' },
-    ],
   },
   services: [
     { title: 'Plumbing', tags: ['Leaks', 'Taps & faucets', 'Water heaters', 'Unclogging'] },
@@ -343,11 +333,6 @@ const ar: Dict = {
       { title: 'بسيط', desc: 'احجز ببضع نقرات' },
       { title: 'سريع', desc: 'تدخّل بالقرب منك' },
       { title: 'موثوق', desc: 'فنيون موثَّقون' },
-    ],
-    cards: [
-      { title: 'تدخّل سريع', desc: 'بالقرب منك' },
-      { title: 'فنيون', desc: 'مؤهلون وموثَّقون' },
-      { title: 'دفع آمن', desc: 'داخل التطبيق' },
     ],
   },
   services: [
