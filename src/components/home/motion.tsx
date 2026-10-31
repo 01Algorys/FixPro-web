@@ -41,10 +41,10 @@ export function Reveal({
   );
 }
 
-/** Counts from 0 to `to` once visible, formatted with French digit grouping. */
+/** Counts from 0 to `to` once visible, formatted for `locale` (French digit grouping by default). */
 export function CountUp({
-  to, decimals = 0, prefix = '', suffix = '', duration = 1600,
-}: { to: number; decimals?: number; prefix?: string; suffix?: string; duration?: number }) {
+  to, decimals = 0, prefix = '', suffix = '', duration = 1600, locale = 'fr-FR',
+}: { to: number; decimals?: number; prefix?: string; suffix?: string; duration?: number; locale?: string }) {
   const { ref, inView } = useInView<HTMLSpanElement>(0.4);
   const [value, setValue] = useState(0);
 
@@ -65,6 +65,6 @@ export function CountUp({
     return () => cancelAnimationFrame(frame);
   }, [inView, to, duration]);
 
-  const formatted = value.toLocaleString('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  const formatted = value.toLocaleString(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   return <span ref={ref} className="tabular-nums">{prefix}{formatted}{suffix}</span>;
 }

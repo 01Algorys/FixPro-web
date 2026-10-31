@@ -59,3 +59,6 @@
   .reveal, .reveal.is-in { opacity: 1; transform: none; transition: none; }
   .animate-marquee, .animate-marquee-reverse, .animate-float, .animate-hero-in, .animate-pulse-ring { animation: none; }
 }
+
+/* Arabic letters must stay joined: drop the tight/wide tracking used for Latin headings */
+[dir='rtl'] * { letter-spacing: 0 !important; }
