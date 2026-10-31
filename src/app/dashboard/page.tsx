@@ -125,8 +125,8 @@ function KpiCard({
       <span className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: bg }}>
         <Icon className="w-5 h-5" style={{ color }} strokeWidth={2} />
       </span>
-      <div className="min-w-0">
-        <p className="text-[12.5px] font-medium text-[#33405a]">{title}</p>
+      <div className="min-w-0 pr-5">
+        <p className="text-[12.5px] font-medium leading-tight text-[#33405a]">{title}</p>
         <p className="mt-0.5 flex items-baseline gap-2">
           <span className="text-[20px] font-extrabold leading-tight tabular-nums">{value}</span>
           <Delta value={deltaValue} />
@@ -436,10 +436,10 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* KPI row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-3">
+        {/* All 8 stat cards share one grid: as many 220px+ columns as fit, capped at 4 (4/4 on a laptop, 3/3/2 at 1024px) */}
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(max(220px,calc((100%_-_36px)/4)),1fr))] gap-3">
           {loading ? (
-            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[78px] rounded-2xl" />)
+            Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-[78px] rounded-2xl" />)
           ) : (
             <>
               <KpiCard icon={UserIcon} color="#1d6ff2" bg="#e8f0fe" title="Utilisateurs" value={fmt(s?.totalUsers ?? 0)}
@@ -450,16 +450,6 @@ export default function DashboardPage() {
                 deltaValue={view?.reservationsDelta} sub="Total des réservations" cornerIcon={CalendarDays} />
               <KpiCard icon={CircleCheck} color="#16a34a" bg="#e7f7ee" title="Interventions terminées" value={fmt(s?.completedReservations ?? 0)}
                 deltaValue={view?.completedDelta} sub="Services réalisés" cornerIcon={BadgeCheck} />
-            </>
-          )}
-        </div>
-
-        {/* Revenue row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-3">
-          {loading ? (
-            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[78px] rounded-2xl" />)
-          ) : (
-            <>
               <RevenueCard icon={Coins} color="#16a34a" bg="#e7f7ee" title="Revenus totaux" value={tnd(s?.totalRevenue ?? 0)}
                 deltaValue={view?.revenueDelta} sub="Depuis le début" spark={view?.revenueSpark ?? []} />
               <RevenueCard icon={Database} color="#8b3dff" bg="#f1e8ff" title="Revenus abonnements" value={tnd(0)}
@@ -471,7 +461,7 @@ export default function DashboardPage() {
                   <Clock className="w-5 h-5 text-[#dc2626]" strokeWidth={2} />
                 </span>
                 <div className="min-w-0 pr-6">
-                  <p className="text-[12.5px] font-medium text-[#33405a] whitespace-nowrap">En attente d&apos;approbation</p>
+                  <p className="text-[12.5px] font-medium leading-tight text-[#33405a]">En attente d&apos;approbation</p>
                   <p className="mt-0.5 text-[20px] font-extrabold leading-tight tabular-nums">{fmt(s?.pendingApprovals ?? 0)}</p>
                   <Link href="/dashboard/techniciens" className="mt-0.5 inline-flex items-center gap-1 whitespace-nowrap text-[11.5px] font-semibold text-[#dc2626] hover:gap-2.5 transition-all">
                     Voir les demandes <ArrowRight className="w-4 h-4" />
