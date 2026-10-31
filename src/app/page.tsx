@@ -343,15 +343,24 @@ export default function HomePage() {
   }, []);
 
   const navLinks = NAV_IDS.map((id, i) => ({ id, label: t.nav[i] }));
+  // Phone header sits transparently over the hero until the page scrolls or the menu opens
+  const overlay = !scrolled && !menuOpen;
   const testimonials = t.testimonials.items.map((item, i) => ({ item, ...TESTIMONIAL_META[i] }));
   const rows = [testimonials.slice(0, 4), testimonials.slice(4)];
 
   return (
     <div lang={lang} dir={dir} className={`${isAr ? cairo.className : jakarta.className} min-h-screen bg-white text-[#0b1533] overflow-x-clip`}>
       {/* Header */}
-      <header className={`sticky top-0 z-50 bg-white/95 backdrop-blur transition-shadow ${scrolled ? 'shadow-[0_6px_24px_rgba(15,23,42,0.08)]' : 'shadow-[0_1px_0_rgba(15,23,42,0.06)]'}`}>
+      {/* On phones the bar floats over the hero: transparent with no logo at the top, solid once scrolled or with the menu open */}
+      <header
+        className={`max-md:fixed max-md:inset-x-0 sticky top-0 z-50 transition-[background-color,box-shadow,backdrop-filter] duration-300 ${
+          scrolled ? 'shadow-[0_6px_24px_rgba(15,23,42,0.08)]' : 'md:shadow-[0_1px_0_rgba(15,23,42,0.06)]'
+        } ${overlay ? 'max-md:bg-transparent md:bg-white/95 md:backdrop-blur' : 'bg-white/95 backdrop-blur'}`}
+      >
         <div className="max-w-[1440px] mx-auto px-5 lg:px-12 h-[72px] flex items-center justify-between gap-6">
-          <Logo />
+          <div className="max-md:hidden">
+            <Logo />
+          </div>
 
           <nav className="hidden xl:flex items-center gap-8 h-full">
             {navLinks.map(link => (
@@ -377,7 +386,7 @@ export default function HomePage() {
             </a>
           </div>
 
-          <div className="xl:hidden flex items-center gap-1">
+          <div className={`xl:hidden ml-auto flex items-center gap-1 rounded-2xl transition-colors ${overlay ? 'max-md:bg-white/75 max-md:backdrop-blur-md max-md:shadow-[0_4px_16px_rgba(15,40,90,0.12)] max-md:ps-1' : ''}`}>
             <LanguageSelect lang={lang} onChange={changeLang} label={t.language} />
             <button onClick={() => setMenuOpen(v => !v)} className="p-2 text-[#0b1533]" aria-label={t.menu}>
               {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -423,7 +432,7 @@ export default function HomePage() {
           />
         )}
 
-        <div className={`relative max-w-[1440px] mx-auto px-5 lg:px-12 ${poster ? 'pt-6' : 'pt-10'} md:pt-10 lg:pt-[clamp(32px,3.5vw,56px)] pb-10 lg:pb-16 h-full`}>
+        <div className={`relative max-w-[1440px] mx-auto px-5 lg:px-12 ${poster ? 'pt-6' : 'pt-24'} md:pt-10 lg:pt-[clamp(32px,3.5vw,56px)] pb-10 lg:pb-16 h-full`}>
           {/* Physical mr-auto keeps the text over the banner's empty left side in Arabic too */}
           <div className={`${isAr ? 'lg:max-w-[min(580px,calc(47vw-100px))]' : 'lg:max-w-[min(620px,calc(47vw-48px))]'} lg:mr-auto`}>
             <h1 className={`${poster ? 'sr-only md:not-sr-only' : ''} animate-hero-in text-[42px] sm:text-[54px] lg:text-[clamp(46px,4.4vw,72px)] font-extrabold ${isAr ? 'leading-[1.25]' : 'leading-[1.02]'} tracking-[-0.03em]`}>
