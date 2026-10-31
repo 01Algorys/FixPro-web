@@ -17,3 +17,45 @@
     display: none;
   }
 }
+
+/* Landing page motion (see src/components/home/motion.tsx) */
+.reveal {
+  opacity: 0;
+  transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal-up { transform: translateY(28px); }
+.reveal-left { transform: translateX(-36px); }
+.reveal-right { transform: translateX(36px); }
+.reveal-zoom { transform: scale(0.94); }
+.reveal.is-in { opacity: 1; transform: none; }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.animate-marquee { animation: marquee var(--marquee-duration, 60s) linear infinite; }
+.animate-marquee-reverse { animation: marquee var(--marquee-duration, 60s) linear infinite reverse; }
+.marquee-row:hover .animate-marquee,
+.marquee-row:hover .animate-marquee-reverse { animation-play-state: paused; }
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-hero-in { animation: hero-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.animate-pulse-ring { animation: pulse-ring 2s ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal.is-in { opacity: 1; transform: none; transition: none; }
+  .animate-marquee, .animate-marquee-reverse, .animate-float, .animate-hero-in, .animate-pulse-ring { animation: none; }
+}
