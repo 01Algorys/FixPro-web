@@ -300,18 +300,13 @@ export default function HomePage() {
   const t = DICTS[lang];
   const { locale, dir } = LANGS.find(l => l.code === lang)!;
   const isAr = lang === 'ar';
-  // The phone poster has French text baked in, so other languages use the HTML hero on phones
-  const poster = lang === 'fr';
-
-  // Restore the saved language, or follow the browser on a first visit
+  // French by default; only a language the visitor picked before overrides it
   useEffect(() => {
     let saved: string | null = null;
     try {
       saved = localStorage.getItem(LANG_STORAGE_KEY);
     } catch {}
-    const browser = navigator.language.slice(0, 2);
-    const next = [saved, browser].find((c): c is Lang => c === 'fr' || c === 'en' || c === 'ar');
-    if (next) setLang(next);
+    if (saved === 'en' || saved === 'ar') setLang(saved);
   }, []);
 
   const changeLang = (next: Lang) => {
@@ -418,32 +413,30 @@ export default function HomePage() {
         />
         <div className="hidden lg:block absolute inset-y-0 left-0 w-[48%] bg-gradient-to-r from-white/70 via-white/40 to-transparent" />
 
-        {/* Phones (French): poster artwork that already contains the title, subtitle and feature row.
+        {/* Phones, every language: poster artwork that already contains the title, subtitle and feature row.
             `sizes` of 1px at md+ makes desktops fetch only a tiny variant of this hidden image. */}
-        {poster && (
-          <Image
-            src="/images/hero-mobile.PNG"
-            alt={`FixPro — ${t.hero.title1} ${t.hero.title2}`}
-            width={941}
-            height={1672}
-            priority
-            sizes="(min-width: 768px) 1px, 100vw"
-            className="md:hidden block w-full h-auto"
-          />
-        )}
+        <Image
+          src="/images/hero-mobile.PNG"
+          alt={`FixPro — ${t.hero.title1} ${t.hero.title2}`}
+          width={941}
+          height={1672}
+          priority
+          sizes="(min-width: 768px) 1px, 100vw"
+          className="md:hidden block w-full h-auto"
+        />
 
-        <div className={`relative max-w-[1440px] mx-auto px-5 lg:px-12 ${poster ? 'pt-6' : 'pt-24'} md:pt-10 lg:pt-[clamp(32px,3.5vw,56px)] pb-10 lg:pb-16 h-full`}>
+        <div className={`relative max-w-[1440px] mx-auto px-5 lg:px-12 pt-6 md:pt-10 lg:pt-[clamp(32px,3.5vw,56px)] pb-10 lg:pb-16 h-full`}>
           {/* Physical mr-auto keeps the text over the banner's empty left side in Arabic too */}
           <div className={`${isAr ? 'lg:max-w-[min(580px,calc(47vw-100px))]' : 'lg:max-w-[min(620px,calc(47vw-48px))]'} lg:mr-auto`}>
-            <h1 className={`${poster ? 'sr-only md:not-sr-only' : ''} animate-hero-in text-[42px] sm:text-[54px] lg:text-[clamp(46px,4.4vw,72px)] font-extrabold ${isAr ? 'leading-[1.25]' : 'leading-[1.02]'} tracking-[-0.03em]`}>
+            <h1 className={`sr-only md:not-sr-only animate-hero-in text-[42px] sm:text-[54px] lg:text-[clamp(46px,4.4vw,72px)] font-extrabold ${isAr ? 'leading-[1.25]' : 'leading-[1.02]'} tracking-[-0.03em]`}>
               {t.hero.title1}<br />
               <span className="text-[#1d6ff2]">{t.hero.title2}</span>
             </h1>
-            <p className={`${poster ? 'hidden md:block' : ''} animate-hero-in [animation-delay:120ms] mt-4 text-[17px] lg:text-[clamp(16px,1.35vw,21px)] leading-snug text-[#33405a]`}>
+            <p className="hidden md:block animate-hero-in [animation-delay:120ms] mt-4 text-[17px] lg:text-[clamp(16px,1.35vw,21px)] leading-snug text-[#33405a]">
               {t.hero.subtitle}
             </p>
 
-            <div className={`${poster ? 'hidden md:grid' : 'grid'} animate-hero-in [animation-delay:220ms] mt-6 lg:mt-[clamp(16px,1.6vw,28px)] grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4`}>
+            <div className="hidden md:grid animate-hero-in [animation-delay:220ms] mt-6 lg:mt-[clamp(16px,1.6vw,28px)] grid-cols-3 gap-3 lg:gap-4">
               {HERO_FEATURES.map((f, i) => (
                 <div key={i} className="flex items-center gap-2.5">
                   <span className="w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: f.bg }}>
@@ -457,7 +450,7 @@ export default function HomePage() {
               ))}
             </div>
 
-            <div className={`${poster ? '' : 'mt-6'} md:mt-6 lg:mt-[clamp(16px,1.6vw,28px)] grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3`}>
+            <div className="md:mt-6 lg:mt-[clamp(16px,1.6vw,28px)] grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
               {SERVICES.map((s, i) => (
                 <a
                   key={i}
@@ -501,8 +494,8 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* Tablet (and phones without the poster): the phone + technician part of the banner under the text */}
-        <div className={`${poster ? 'hidden md:block' : 'block h-[300px] sm:h-[420px]'} lg:hidden relative md:h-[420px]`}>
+        {/* Tablet: the phone + technician part of the banner under the text */}
+        <div className="hidden md:block lg:hidden relative h-[420px]">
           <img src="/images/hero.PNG" alt="" className="absolute inset-0 w-full h-full object-cover object-[72%_center]" />
         </div>
       </section>
