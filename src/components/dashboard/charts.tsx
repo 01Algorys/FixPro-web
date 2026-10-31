@@ -175,7 +175,7 @@ export interface Slice {
 export function Donut({ slices, centerLabel, size = 170 }: { slices: Slice[]; centerLabel: string; size?: number }) {
   const [hover, setHover] = useState<number | null>(null);
   const total = slices.reduce((s, x) => s + x.value, 0);
-  const stroke = 26;
+  const stroke = Math.round(size * 0.15);
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const visible = slices.filter(s => s.value > 0);
@@ -204,7 +204,7 @@ export function Donut({ slices, centerLabel, size = 170 }: { slices: Slice[]; ce
             r={r}
             fill="none"
             stroke={a.s.color}
-            strokeWidth={hover === a.i ? stroke + 6 : stroke}
+            strokeWidth={hover === a.i ? stroke + 4 : stroke}
             strokeDasharray={`${a.len} ${c - a.len}`}
             strokeDashoffset={-a.offset}
             className="transition-[stroke-width] cursor-pointer"
@@ -214,8 +214,8 @@ export function Donut({ slices, centerLabel, size = 170 }: { slices: Slice[]; ce
         ))}
       </svg>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="text-[30px] font-extrabold leading-none tabular-nums">{fmt(shown ? shown.value : total)}</span>
-        <span className="mt-1.5 text-[12px] text-[#6b7590] max-w-[90px] leading-tight">{shown ? shown.label : centerLabel}</span>
+        <span className="text-[24px] font-extrabold leading-none tabular-nums">{fmt(shown ? shown.value : total)}</span>
+        <span className="mt-1 text-[11px] text-[#6b7590] max-w-[80px] leading-tight">{shown ? shown.label : centerLabel}</span>
       </div>
     </div>
   );

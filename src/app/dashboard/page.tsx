@@ -50,8 +50,8 @@ function Delta({ value }: { value: number | undefined }) {
   const down = value < 0;
   const Icon = down ? ArrowDown : ArrowUp;
   return (
-    <span className={`inline-flex items-center gap-1 text-[13px] font-bold tabular-nums ${up ? 'text-[#16a34a]' : down ? 'text-[#dc2626]' : 'text-[#8a94ad]'}`}>
-      <Icon className="w-3.5 h-3.5" strokeWidth={2.6} />
+    <span className={`inline-flex items-center gap-0.5 text-[11.5px] font-bold tabular-nums ${up ? 'text-[#16a34a]' : down ? 'text-[#dc2626]' : 'text-[#8a94ad]'}`}>
+      <Icon className="w-3 h-3" strokeWidth={2.6} />
       {up ? '+' : ''}{fmt(value)}%
     </span>
   );
@@ -60,7 +60,7 @@ function Delta({ value }: { value: number | undefined }) {
 function Chip({ tone, children }: { tone: Tone; children: React.ReactNode }) {
   const Icon = tone === 'green' || tone === 'indigo' ? CheckCircle2 : tone === 'red' ? CircleX : Clock;
   return (
-    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-[11.5px] font-semibold ${TONES[tone]}`}>
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold ${TONES[tone]}`}>
       <Icon className="w-3 h-3" strokeWidth={2.4} /> {children}
     </span>
   );
@@ -87,7 +87,7 @@ function Dropdown<T extends string>({
       <button
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
-        className="flex w-full items-center gap-2 rounded-xl border border-[#e3e8f1] bg-white px-3 py-2 text-[12.5px] font-medium text-[#0b1533] hover:border-[#c9d3e3] transition-colors"
+        className="flex w-full items-center gap-2 rounded-lg border border-[#e3e8f1] bg-white px-2.5 py-1.5 text-[12px] font-medium text-[#0b1533] hover:border-[#c9d3e3] transition-colors"
       >
         {icon}
         <span className="flex-1 text-left whitespace-nowrap">{current?.label}</span>
@@ -121,19 +121,19 @@ function KpiCard({
   icon: React.ElementType; color: string; bg: string; title: string; value: string; deltaValue?: number; sub: string; cornerIcon: React.ElementType;
 }) {
   return (
-    <Card className="relative p-5 flex items-center gap-4">
-      <span className="w-[58px] h-[58px] rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: bg }}>
-        <Icon className="w-7 h-7" style={{ color }} strokeWidth={2} />
+    <Card className="relative p-4 flex items-center gap-3">
+      <span className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: bg }}>
+        <Icon className="w-5 h-5" style={{ color }} strokeWidth={2} />
       </span>
       <div className="min-w-0">
-        <p className="text-[13.5px] font-medium text-[#33405a]">{title}</p>
-        <p className="mt-1 flex items-baseline gap-3">
-          <span className="text-[26px] font-extrabold leading-none tabular-nums">{value}</span>
+        <p className="text-[12.5px] font-medium text-[#33405a]">{title}</p>
+        <p className="mt-0.5 flex items-baseline gap-2">
+          <span className="text-[20px] font-extrabold leading-tight tabular-nums">{value}</span>
           <Delta value={deltaValue} />
         </p>
-        <p className="mt-1.5 text-[12.5px] text-[#6b7590]">{sub}</p>
+        <p className="mt-0.5 text-[11.5px] text-[#6b7590]">{sub}</p>
       </div>
-      <Corner className="absolute right-5 top-5 w-5 h-5 text-[#b6c0d4]" strokeWidth={1.8} />
+      <Corner className="absolute right-4 top-4 w-4 h-4 text-[#b6c0d4]" strokeWidth={1.8} />
     </Card>
   );
 }
@@ -144,20 +144,20 @@ function RevenueCard({
   icon: React.ElementType; color: string; bg: string; title: string; value: string; deltaValue?: number; sub?: string; spark: number[];
 }) {
   return (
-    <Card className="relative overflow-hidden p-5 flex items-center gap-4">
-      <span className="w-[58px] h-[58px] rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: bg }}>
-        <Icon className="w-7 h-7" style={{ color }} strokeWidth={2} />
+    <Card className="relative overflow-hidden p-4 flex items-center gap-3">
+      <span className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: bg }}>
+        <Icon className="w-5 h-5" style={{ color }} strokeWidth={2} />
       </span>
       <div className="relative z-10 min-w-0">
-        <p className="text-[13.5px] font-medium text-[#33405a] whitespace-nowrap">{title}</p>
-        <p className="mt-1 flex items-baseline gap-3">
-          <span className="text-[24px] font-extrabold leading-none tabular-nums whitespace-nowrap">{value}</span>
+        <p className="text-[12.5px] font-medium text-[#33405a] whitespace-nowrap">{title}</p>
+        <p className="mt-0.5 flex items-baseline gap-2">
+          <span className="text-[19px] font-extrabold leading-tight tabular-nums whitespace-nowrap">{value}</span>
           <Delta value={deltaValue} />
         </p>
-        {sub && <p className="mt-1.5 text-[12.5px] text-[#6b7590]">{sub}</p>}
+        {sub && <p className="mt-0.5 text-[11.5px] text-[#6b7590]">{sub}</p>}
       </div>
       {/* Decorative trend in the corner; the value and delta carry the information */}
-      <Sparkline values={spark} color={color} className="absolute right-4 bottom-3 w-[30%] max-w-[120px] h-9 opacity-90" />
+      <Sparkline values={spark} color={color} className="absolute right-3 bottom-2.5 w-[28%] max-w-[100px] h-7 opacity-90" />
     </Card>
   );
 }
@@ -165,7 +165,7 @@ function RevenueCard({
 function CardHeader({ title, action }: { title: string; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <h2 className="text-[16.5px] font-extrabold whitespace-nowrap truncate">{title}</h2>
+      <h2 className="text-[14.5px] font-extrabold whitespace-nowrap truncate">{title}</h2>
       {action}
     </div>
   );
@@ -173,7 +173,7 @@ function CardHeader({ title, action }: { title: string; action?: React.ReactNode
 
 function SeeAll({ href }: { href: string }) {
   return (
-    <Link href={href} className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-[#1d6ff2] hover:gap-2.5 transition-all">
+    <Link href={href} className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#1d6ff2] hover:gap-2 transition-all">
       Voir tout <ArrowRight className="w-4 h-4" />
     </Link>
   );
@@ -187,11 +187,11 @@ function SampleNote({ show }: { show: boolean }) {
 function Avatar({ name, src }: { name: string; src?: string | null }) {
   if (src) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src} alt="" className="w-9 h-9 rounded-full object-cover shrink-0" />;
+    return <img src={src} alt="" className="w-7 h-7 rounded-full object-cover shrink-0" />;
   }
   const initials = name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
   return (
-    <span className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1d6ff2] to-[#38bdf8] text-white text-[12px] font-bold flex items-center justify-center shrink-0">
+    <span className="w-7 h-7 rounded-full bg-gradient-to-br from-[#1d6ff2] to-[#38bdf8] text-white text-[10.5px] font-bold flex items-center justify-center shrink-0">
       {initials || '?'}
     </span>
   );
@@ -202,7 +202,7 @@ function ServiceCell({ category }: { category: string | undefined }) {
   if (!meta) return <span className="text-[#8a94ad]">—</span>;
   return (
     <span className="inline-flex items-center gap-2 whitespace-nowrap">
-      <meta.icon className="w-[18px] h-[18px] shrink-0" style={{ color: meta.color }} />
+      <meta.icon className="w-4 h-4 shrink-0" style={{ color: meta.color }} />
       {meta.label}
     </span>
   );
@@ -402,12 +402,12 @@ export default function DashboardPage() {
   return (
     <>
       <TopBar />
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-5 space-y-4">
         {/* Heading */}
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-[26px] font-extrabold tracking-[-0.02em]">Tableau de bord</h1>
-            <p className="mt-1 text-[14px] text-[#6b7590]">Vue d&apos;ensemble de la plateforme FixPro</p>
+            <h1 className="text-[22px] font-extrabold tracking-[-0.02em]">Tableau de bord</h1>
+            <p className="mt-0.5 text-[13px] text-[#6b7590]">Vue d&apos;ensemble de la plateforme FixPro</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Dropdown
@@ -415,12 +415,12 @@ export default function DashboardPage() {
               onChange={setPeriod}
               options={PERIODS.map(p => ({ key: p.key, label: p.key === period ? rangeLabel : p.label }))}
               icon={<CalendarRange className="w-4 h-4 text-[#6b7590]" />}
-              className="min-w-[230px] [&>button]:py-2.5 [&>button]:text-[13.5px]"
+              className="min-w-[210px] [&>button]:py-2 [&>button]:text-[12.5px]"
             />
             <button
               onClick={exportCsv}
               disabled={!data}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#1d6ff2] hover:bg-[#165fd6] disabled:opacity-50 px-4 py-2.5 text-[14px] font-semibold text-white shadow-[0_8px_20px_rgba(29,111,242,0.25)] transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#1d6ff2] hover:bg-[#165fd6] disabled:opacity-50 px-3.5 py-2 text-[13px] font-semibold text-white shadow-[0_8px_20px_rgba(29,111,242,0.25)] transition-colors"
             >
               <Download className="w-4 h-4" /> Exporter
             </button>
@@ -437,9 +437,9 @@ export default function DashboardPage() {
         )}
 
         {/* KPI row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-3">
           {loading ? (
-            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[108px] rounded-2xl" />)
+            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[78px] rounded-2xl" />)
           ) : (
             <>
               <KpiCard icon={UserIcon} color="#1d6ff2" bg="#e8f0fe" title="Utilisateurs" value={fmt(s?.totalUsers ?? 0)}
@@ -455,9 +455,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Revenue row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-3">
           {loading ? (
-            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[108px] rounded-2xl" />)
+            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[78px] rounded-2xl" />)
           ) : (
             <>
               <RevenueCard icon={Coins} color="#16a34a" bg="#e7f7ee" title="Revenus totaux" value={tnd(s?.totalRevenue ?? 0)}
@@ -466,19 +466,19 @@ export default function DashboardPage() {
                 sub="Module à venir" spark={Array(14).fill(0)} />
               <RevenueCard icon={FileText} color="#1d6ff2" bg="#e8f0fe" title="Revenus commissions" value={tnd(0)}
                 sub="Module à venir" spark={Array(14).fill(0)} />
-              <Card className="relative p-5 flex items-center gap-4">
-                <span className="w-[58px] h-[58px] rounded-2xl bg-[#fdecec] flex items-center justify-center shrink-0">
-                  <Clock className="w-7 h-7 text-[#dc2626]" strokeWidth={2} />
+              <Card className="relative p-4 flex items-center gap-3">
+                <span className="w-11 h-11 rounded-xl bg-[#fdecec] flex items-center justify-center shrink-0">
+                  <Clock className="w-5 h-5 text-[#dc2626]" strokeWidth={2} />
                 </span>
-                <div className="min-w-0 pr-8">
-                  <p className="text-[13px] font-medium text-[#33405a] whitespace-nowrap">En attente d&apos;approbation</p>
-                  <p className="mt-1 text-[26px] font-extrabold leading-none tabular-nums">{fmt(s?.pendingApprovals ?? 0)}</p>
-                  <Link href="/dashboard/techniciens" className="mt-2 inline-flex items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold text-[#dc2626] hover:gap-2.5 transition-all">
+                <div className="min-w-0 pr-6">
+                  <p className="text-[12.5px] font-medium text-[#33405a] whitespace-nowrap">En attente d&apos;approbation</p>
+                  <p className="mt-0.5 text-[20px] font-extrabold leading-tight tabular-nums">{fmt(s?.pendingApprovals ?? 0)}</p>
+                  <Link href="/dashboard/techniciens" className="mt-0.5 inline-flex items-center gap-1 whitespace-nowrap text-[11.5px] font-semibold text-[#dc2626] hover:gap-2.5 transition-all">
                     Voir les demandes <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
-                <span className="absolute right-4 top-4 w-9 h-9 rounded-xl bg-[#fdecec] flex items-center justify-center">
-                  <UserPlus className="w-[18px] h-[18px] text-[#dc2626]" />
+                <span className="absolute right-3 top-3 w-7 h-7 rounded-lg bg-[#fdecec] flex items-center justify-center">
+                  <UserPlus className="w-3.5 h-3.5 text-[#dc2626]" />
                 </span>
               </Card>
             </>
@@ -486,8 +486,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Charts row */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-[1.45fr_1.15fr_1fr] gap-4">
-          <Card className="p-5 xl:col-span-2 2xl:col-span-1">
+        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-[1.45fr_1.15fr_1fr] gap-3">
+          <Card className="p-4 xl:col-span-2 2xl:col-span-1">
             <CardHeader
               title="Évolution des réservations"
               action={
@@ -500,37 +500,37 @@ export default function DashboardPage() {
             />
             {view ? (
               <>
-                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+                <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5">
                   {view.chart.series.map(sr => (
-                    <span key={sr.name} className="inline-flex items-center gap-2 text-[13px] text-[#33405a]">
+                    <span key={sr.name} className="inline-flex items-center gap-1.5 text-[12px] text-[#33405a]">
                       <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: sr.color }} /> {sr.name}
                     </span>
                   ))}
                 </div>
                 <div className="mt-3">
-                  <LineChart labels={view.chart.labels} series={view.chart.series} />
+                  <LineChart labels={view.chart.labels} series={view.chart.series} height={180} />
                 </div>
                 <SampleNote show={!view.complete} />
               </>
             ) : (
-              <Skeleton className="mt-4 h-[260px]" />
+              <Skeleton className="mt-3 h-[205px]" />
             )}
           </Card>
 
-          <Card className="p-5">
+          <Card className="p-4">
             <CardHeader
               title="Réservations par service"
               action={<Dropdown value={period} onChange={setPeriod} options={PERIODS.map(p => ({ key: p.key, label: p.short }))} />}
             />
             {view ? (
               <>
-                <div className="mt-5 flex flex-col sm:flex-row items-center gap-6">
-                  <Donut slices={view.slices} centerLabel={view.periodCount > 1 ? 'Réservations' : 'Réservation'} />
-                  <ul className="flex-1 w-full space-y-[7px]">
+                <div className="mt-3 flex flex-col sm:flex-row items-center gap-5">
+                  <Donut slices={view.slices} centerLabel={view.periodCount > 1 ? 'Réservations' : 'Réservation'} size={136} />
+                  <ul className="flex-1 w-full space-y-[5px]">
                     {view.slices.map(sl => {
                       const pct = view.periodCount ? Math.round((sl.value / view.periodCount) * 100) : 0;
                       return (
-                        <li key={sl.label} className="flex items-center gap-2.5 text-[13px]">
+                        <li key={sl.label} className="flex items-center gap-2 text-[12px]">
                           <span className="w-2.5 h-2.5 rounded-[3px] shrink-0" style={{ backgroundColor: sl.color }} />
                           <span className="flex-1 text-[#33405a] truncate">{sl.label}</span>
                           <span className="font-bold tabular-nums">{sl.value}</span>
@@ -543,17 +543,17 @@ export default function DashboardPage() {
                 <SampleNote show={!view.complete} />
               </>
             ) : (
-              <Skeleton className="mt-4 h-[230px]" />
+              <Skeleton className="mt-3 h-[180px]" />
             )}
           </Card>
 
-          <Card className="p-5">
+          <Card className="p-4">
             <CardHeader
               title="Demandes par zone"
               action={<Dropdown value={period} onChange={setPeriod} options={PERIODS.map(p => ({ key: p.key, label: p.short }))} />}
             />
-            <div className="mt-4">
-              {view ? <ZoneMap points={view.zones} unplaced={view.unplaced} height={236} /> : <Skeleton className="h-[236px]" />}
+            <div className="mt-3">
+              {view ? <ZoneMap points={view.zones} unplaced={view.unplaced} height={184} /> : <Skeleton className="h-[184px]" />}
             </div>
             {view && <SampleNote show={!view.complete} />}
           </Card>
@@ -561,20 +561,20 @@ export default function DashboardPage() {
 
         {/* Tables row */}
         {/* Three columns only when both tables fit without scrolling */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 min-[1680px]:grid-cols-[1.4fr_1.4fr_0.95fr] gap-4">
-          <Card className="p-5 min-w-0">
+        <div className="grid grid-cols-1 xl:grid-cols-2 min-[1680px]:grid-cols-[1.4fr_1.4fr_0.95fr] gap-3">
+          <Card className="p-4 min-w-0">
             <CardHeader title="Dernières demandes" action={<SeeAll href="/dashboard/demandes" />} />
-            <div className="relative mt-4 overflow-x-auto -mx-5 px-5">
-              <table className="w-full min-w-[470px] text-[12.5px]">
+            <div className="relative mt-3 overflow-x-auto -mx-4 px-4">
+              <table className="w-full min-w-[440px] text-[12px]">
                 <thead>
-                  <tr className="bg-[#f6f8fc] text-left text-[12.5px] font-semibold text-[#33405a]">
-                    <th className="py-2.5 pl-3 pr-2 rounded-l-lg">#</th>
-                    <th className="py-2.5 px-1.5">Service</th>
-                    <th className="py-2.5 px-1.5">Client</th>
-                    <th className="py-2.5 px-1.5">Localisation</th>
-                    <th className="py-2.5 px-1.5">Statut</th>
-                    <th className="py-2.5 px-1.5">Date</th>
-                    <th className="py-2.5 pr-3 rounded-r-lg"><span className="sr-only">Actions</span></th>
+                  <tr className="bg-[#f6f8fc] text-left text-[11.5px] font-semibold text-[#33405a]">
+                    <th className="py-2 pl-3 pr-2 rounded-l-lg">#</th>
+                    <th className="py-2 px-1.5">Service</th>
+                    <th className="py-2 px-1.5">Client</th>
+                    <th className="py-2 px-1.5">Localisation</th>
+                    <th className="py-2 px-1.5">Statut</th>
+                    <th className="py-2 px-1.5">Date</th>
+                    <th className="py-2 pr-3 rounded-r-lg"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -585,13 +585,13 @@ export default function DashboardPage() {
                     const st = RESERVATION_STATUS[r.status] ?? { label: r.status, tone: 'gray' as Tone };
                     return (
                       <tr key={r.id} className="border-b border-[#f1f4f9] last:border-0">
-                        <td className="py-3 pl-3 pr-2 font-semibold">#{r.id}</td>
-                        <td className="py-3 px-1.5"><ServiceCell category={view?.categoryOf.get(r.serviceId)} /></td>
-                        <td className="py-3 px-1.5 text-[#33405a] whitespace-nowrap">{r.userInfo?.name ?? '—'}</td>
-                        <td className="py-3 px-1.5 text-[#33405a]">{parseLocation(r.location).city ?? '—'}</td>
-                        <td className="py-3 px-1.5"><Chip tone={st.tone}>{st.label}</Chip></td>
-                        <td className="py-3 px-1.5 text-[#6b7590] whitespace-nowrap">{shortDate(r.createdAt)}</td>
-                        <td className="py-3 pr-3 text-right">
+                        <td className="py-2 pl-3 pr-2 font-semibold">#{r.id}</td>
+                        <td className="py-2 px-1.5"><ServiceCell category={view?.categoryOf.get(r.serviceId)} /></td>
+                        <td className="py-2 px-1.5 text-[#33405a] whitespace-nowrap">{r.userInfo?.name ?? '—'}</td>
+                        <td className="py-2 px-1.5 text-[#33405a]">{parseLocation(r.location).city ?? '—'}</td>
+                        <td className="py-2 px-1.5"><Chip tone={st.tone}>{st.label}</Chip></td>
+                        <td className="py-2 px-1.5 text-[#6b7590] whitespace-nowrap">{shortDate(r.createdAt)}</td>
+                        <td className="py-2 pr-3 text-right">
                           <Link href="/dashboard/reservations" className="inline-flex p-1 rounded-md text-[#6b7590] hover:bg-[#f3f6fb]" aria-label={`Voir la demande #${r.id}`}>
                             <MoreHorizontal className="w-4 h-4" />
                           </Link>
@@ -607,18 +607,18 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          <Card className="p-5 min-w-0">
+          <Card className="p-4 min-w-0">
             <CardHeader title="Derniers techniciens inscrits" action={<SeeAll href="/dashboard/techniciens" />} />
-            <div className="relative mt-4 overflow-x-auto -mx-5 px-5">
-              <table className="w-full min-w-[470px] text-[12.5px]">
+            <div className="relative mt-3 overflow-x-auto -mx-4 px-4">
+              <table className="w-full min-w-[440px] text-[12px]">
                 <thead>
-                  <tr className="bg-[#f6f8fc] text-left text-[12.5px] font-semibold text-[#33405a]">
-                    <th className="py-2.5 pl-3 pr-2 rounded-l-lg">Technicien</th>
-                    <th className="py-2.5 px-1.5">Service</th>
-                    <th className="py-2.5 px-1.5">Ville</th>
-                    <th className="py-2.5 px-1.5">Statut</th>
-                    <th className="py-2.5 px-1.5">Date</th>
-                    <th className="py-2.5 pr-3 rounded-r-lg"><span className="sr-only">Actions</span></th>
+                  <tr className="bg-[#f6f8fc] text-left text-[11.5px] font-semibold text-[#33405a]">
+                    <th className="py-2 pl-3 pr-2 rounded-l-lg">Technicien</th>
+                    <th className="py-2 px-1.5">Service</th>
+                    <th className="py-2 px-1.5">Ville</th>
+                    <th className="py-2 px-1.5">Statut</th>
+                    <th className="py-2 px-1.5">Date</th>
+                    <th className="py-2 pr-3 rounded-r-lg"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -630,20 +630,20 @@ export default function DashboardPage() {
                     const serviceId = w.worker?.services?.[0];
                     return (
                       <tr key={w.id} className="border-b border-[#f1f4f9] last:border-0">
-                        <td className="py-2.5 pl-3 pr-2">
+                        <td className="py-1.5 pl-3 pr-2">
                           <span className="flex items-center gap-2.5">
                             <Avatar name={w.name} src={w.avatar} />
                             <span className="min-w-0">
                               <span className="block font-semibold truncate max-w-[110px]">{w.name}</span>
-                              <span className="block text-[11.5px] text-[#8a94ad]">#USR-{w.id}</span>
+                              <span className="block text-[10.5px] text-[#8a94ad]">#USR-{w.id}</span>
                             </span>
                           </span>
                         </td>
-                        <td className="py-2.5 px-1.5"><ServiceCell category={serviceId !== undefined ? view?.categoryOf.get(serviceId) : undefined} /></td>
-                        <td className="py-2.5 px-1.5 text-[#33405a]">{parseLocation(w.location).city ?? '—'}</td>
-                        <td className="py-2.5 px-1.5"><Chip tone={st.tone}>{st.label}</Chip></td>
-                        <td className="py-2.5 px-1.5 text-[#6b7590] whitespace-nowrap">{shortDate(w.createdAt)}</td>
-                        <td className="py-2.5 pr-3 text-right">
+                        <td className="py-1.5 px-1.5"><ServiceCell category={serviceId !== undefined ? view?.categoryOf.get(serviceId) : undefined} /></td>
+                        <td className="py-1.5 px-1.5 text-[#33405a]">{parseLocation(w.location).city ?? '—'}</td>
+                        <td className="py-1.5 px-1.5"><Chip tone={st.tone}>{st.label}</Chip></td>
+                        <td className="py-1.5 px-1.5 text-[#6b7590] whitespace-nowrap">{shortDate(w.createdAt)}</td>
+                        <td className="py-1.5 pr-3 text-right">
                           <Link href="/dashboard/techniciens" className="inline-flex p-1 rounded-md text-[#6b7590] hover:bg-[#f3f6fb]" aria-label={`Voir ${w.name}`}>
                             <MoreHorizontal className="w-4 h-4" />
                           </Link>
@@ -659,18 +659,18 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          <Card className="p-5 xl:col-span-2 min-[1680px]:col-span-1">
+          <Card className="p-4 xl:col-span-2 min-[1680px]:col-span-1">
             <CardHeader title="Activité récente" action={<SeeAll href="/dashboard/notifications" />} />
-            <ul className="mt-3 divide-y divide-[#f1f4f9] xl:grid xl:grid-cols-2 xl:gap-x-10 xl:divide-y-0 min-[1680px]:block min-[1680px]:divide-y">
-              {loading && Array.from({ length: 5 }).map((_, i) => <li key={i} className="py-2.5"><Skeleton className="h-9" /></li>)}
+            <ul className="mt-2 divide-y divide-[#f1f4f9] xl:grid xl:grid-cols-2 xl:gap-x-10 xl:divide-y-0 min-[1680px]:block min-[1680px]:divide-y">
+              {loading && Array.from({ length: 5 }).map((_, i) => <li key={i} className="py-2"><Skeleton className="h-7" /></li>)}
               {view?.activity.map((a, i) => (
-                <li key={i} className="flex items-center gap-3 py-2.5">
-                  <span className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${TONES[a.tone]}`}>
-                    <a.icon className="w-[18px] h-[18px]" strokeWidth={2} />
+                <li key={i} className="flex items-center gap-2.5 py-2">
+                  <span className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${TONES[a.tone]}`}>
+                    <a.icon className="w-3.5 h-3.5" strokeWidth={2} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[13px] font-semibold truncate">{a.title}</span>
-                    <span className="block text-[12px] text-[#6b7590] truncate">{a.sub}</span>
+                    <span className="block text-[12px] font-semibold truncate">{a.title}</span>
+                    <span className="block text-[11px] text-[#6b7590] truncate">{a.sub}</span>
                   </span>
                   <span className="text-[11.5px] text-[#8a94ad] shrink-0">{relativeTime(a.at)}</span>
                 </li>
