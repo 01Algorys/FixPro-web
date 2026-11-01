@@ -97,6 +97,33 @@ export const adminApi = {
       { method: 'PATCH', body: JSON.stringify({ services }) }
     ),
 
+  // Technician subscriptions (managed by hand)
+  getSubscriptionStats: () =>
+    request<{ success: boolean; data: import('@/types').SubscriptionStats }>('/admin/subscriptions/stats'),
+
+  getSubscriptions: (params: Record<string, string | number> = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
+    ).toString();
+    return request<{ success: boolean; data: { technicians: import('@/types').TechnicianSubscription[]; pagination: import('@/types').Pagination } }>(
+      `/admin/subscriptions?${qs}`
+    );
+  },
+
+  updateSubscription: (userId: number, body: { action: import('@/types').SubscriptionAction; months?: number; amount?: number; date?: string; note?: string }) =>
+    request<{ success: boolean; message: string }>(
+      `/admin/subscriptions/${userId}`, { method: 'PATCH', body: JSON.stringify(body) }
+    ),
+
+  getSubscriptionLogs: (params: Record<string, string | number> = {}, userId?: number) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
+    ).toString();
+    return request<{ success: boolean; data: { logs: import('@/types').SubscriptionLog[]; pagination: import('@/types').Pagination } }>(
+      `/admin/subscriptions${userId ? `/${userId}` : ''}/logs?${qs}`
+    );
+  },
+
   // Technician mission-fee payments
   getPaymentStats: () =>
     request<{ success: boolean; data: import('@/types').PaymentStats }>('/admin/payments/stats'),

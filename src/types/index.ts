@@ -172,6 +172,49 @@ export interface Service {
   createdAt: string;
 }
 
+export type SubscriptionState = 'ACTIVE' | 'SOON' | 'EXPIRED' | 'NONE';
+export type SubscriptionAction = 'EXTEND' | 'REDUCE' | 'SET_DATE' | 'SUSPEND' | 'REACTIVATE';
+
+export interface TechnicianSubscription {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+  accountStatus: AccountStatus;
+  subscriptionEndsAt: string | null;
+  state: SubscriptionState;
+  daysLeft: number | null;
+  lastChangeAt: string | null;
+}
+
+export interface SubscriptionStats {
+  soonDays: number;
+  total: number;
+  active: number;
+  soon: number;
+  expired: number;
+  none: number;
+  suspended: number;
+  collectedThisMonth: number;
+  collectedTotal: number;
+}
+
+export interface SubscriptionLog {
+  id: number;
+  workerId: number;
+  adminId: number;
+  action: SubscriptionAction;
+  months: number | null;
+  amount: number | null;
+  endsBefore: string | null;
+  endsAfter: string | null;
+  note: string | null;
+  createdAt: string;
+  workerInfo?: { id: number; name: string; avatar: string | null } | null;
+  adminInfo?: { id: number; name: string; avatar: string | null } | null;
+}
+
 export type PaymentAction = 'ADD' | 'REDUCE' | 'RESET';
 
 export interface TechnicianPayment {
