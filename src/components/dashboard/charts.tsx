@@ -220,3 +220,93 @@ export function Donut({ slices, centerLabel, size = 170 }: { slices: Slice[]; ce
     </div>
   );
 }
+
+// ─── Stacked bar chart ──────────────────────────────────────────────────────
+
+/** Vertical bars stacked bottom-up in `series` order, with each bar's total above it. */
+export function BarChart({
+  labels, series, height = 220, format = fmt, highlightLast = false,
+}: { labels: string[]; series: Series[]; height?: number; format?: (n: number) => string; highlightLast?: boolean }) {
+  const { ref, width } = useWidth<HTMLDivElement>();
+  const [hover, setHover] = useState<number | null>(null);
+
+  const pad = { top: 22, right: 8, bottom: 26, left: 40 };
+  const innerW = Math.max(0, width - pad.left - pad.right);
+  const innerH = height - pad.top - pad.bottom;
+  const n = labels.length;
+  const totals = labels.map((_, i) => series.reduce((s, x) => s + (x.values[i] || 0), 0));
+  const max = niceMax(Math.max(0, ...totals));
+  const steps = max <= 5 ? max : 5;
+  const ticks = Array.from({ length: steps + 1 }, (_, i) => (max / steps) * i);
+  const slot = n ? innerW / n : 0;
+  const barW = Math.min(64, slot * 0.62);
+  const y = (v: number) => pad.top + innerH - (v / max) * innerH;
+  const compact = (t: number) => (t >= 1000 ? `${(t / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })}k` : fmt(t));
+
+  return (
+    <div ref={ref} className="relative w-full" style={{ height }}>
+      {width > 0 && (
+        <svg width={width} height={height} className="block" role="img" aria-label={series.map(s => s.name).join(', ')}>
+          {ticks.map(t => (
+            <g key={t}>
+              <line x1={pad.left} x2={width - pad.right} y1={y(t)} y2={y(t)} stroke="#e8edf5" strokeDasharray={t === 0 ? undefined : '3 4'} />
+              <text x={pad.left - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-[#6b7590] text-[11px] tabular-nums">{compact(t)}</text>
+            </g>
+          ))}
+          {labels.map((l, i) => {
+            const cx = pad.left + slot * i + slot / 2;
+            let base = 0;
+            const dim = hover !== null && hover !== i;
+            const last = highlightLast && i === n - 1;
+            return (
+              <g key={l + i} opacity={dim ? 0.55 : 1} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
+                <rect x={pad.left + slot * i} y={pad.top} width={slot} height={innerH} fill="transparent" />
+                {series.map((s, k) => {
+                  const v = s.values[i] || 0;
+                  if (!v) return null;
+                  const top = y(base + v);
+                  const h = y(base) - top;
+                  base += v;
+                  const isTop = series.slice(k + 1).every(x => !(x.values[i] || 0));
+                  // Rounded top on the uppermost segment only; 1px surface gap between segments
+                  return (
+                    <path
+                      key={s.name}
+                      d={isTop
+                        ? `M${cx - barW / 2},${top + h} V${top + 4} Q${cx - barW / 2},${top} ${cx - barW / 2 + 4},${top} H${cx + barW / 2 - 4} Q${cx + barW / 2},${top} ${cx + barW / 2},${top + 4} V${top + h} Z`
+                        : `M${cx - barW / 2},${top + h} V${top + 1} H${cx + barW / 2} V${top + h} Z`}
+                      fill={s.color}
+                      opacity={last || !highlightLast ? 1 : 0.72}
+                    />
+                  );
+                })}
+                <text x={cx} y={y(totals[i]) - 7} textAnchor="middle" className="fill-[#0b1533] text-[11.5px] font-bold tabular-nums">
+                  {totals[i] ? format(totals[i]) : ''}
+                </text>
+                <text x={cx} y={height - 8} textAnchor="middle" className={`text-[11px] ${last ? 'fill-[#0b1533] font-semibold' : 'fill-[#6b7590]'}`}>{l}</text>
+              </g>
+            );
+          })}
+        </svg>
+      )}
+      {hover !== null && (
+        <div
+          className="pointer-events-none absolute top-0 z-10 min-w-[180px] rounded-xl bg-[#0b1533] px-3.5 py-2.5 text-white shadow-xl"
+          style={{ left: Math.min(Math.max(pad.left + slot * hover + slot / 2 - 90, 0), Math.max(0, width - 190)) }}
+        >
+          <p className="text-[12px] font-semibold text-blue-100">{labels[hover]}</p>
+          {series.map(s => (
+            <p key={s.name} className="mt-1 flex items-center gap-2 text-[12px]">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
+              <span className="flex-1 text-white/80">{s.name}</span>
+              <span className="font-bold tabular-nums">{format(s.values[hover] || 0)}</span>
+            </p>
+          ))}
+          <p className="mt-1.5 flex justify-between border-t border-white/15 pt-1.5 text-[12px] font-bold">
+            <span>Total</span><span className="tabular-nums">{format(totals[hover])}</span>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

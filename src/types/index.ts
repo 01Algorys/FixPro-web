@@ -310,3 +310,45 @@ export interface AdminUser {
   email: string;
   avatar: string | null;
 }
+
+// ─── Reports & analytics ────────────────────────────────────────────────────
+
+export type AnalyticsPeriod = 'today' | '7d' | '30d' | 'month' | 'lastMonth' | '90d' | 'year' | 'custom';
+export type ReportKind = 'summary' | 'interventions' | 'finance' | 'technicians' | 'reviews';
+
+/** A value for the selected period, the previous period of the same length, and the % change (null when there is no base) */
+export interface PeriodValue {
+  value: number;
+  prev: number;
+  delta: number | null;
+}
+
+export interface Analytics {
+  range: {
+    period: AnalyticsPeriod;
+    from: string;
+    to: string;
+    prevFrom: string;
+    prevTo: string;
+    granularity: 'day' | 'month';
+    missionFee: number;
+  };
+  kpis: {
+    requests: PeriodValue;
+    completed: PeriodValue;
+    revenue: PeriodValue & { fees: number; subscriptions: number; billableMissions: number };
+    rating: { value: number | null; prev: number | null; delta: number | null; count: number };
+  };
+  timeline: { key: string; label: string; requests: number; completed: number }[];
+  byStatus: Partial<Record<ReservationStatus, number>>;
+  topServices: { key: string; name: string; icon: string | null; color: string | null; count: number; share: number }[];
+  revenueByMonth: { key: string; label: string; fees: number; subscriptions: number; total: number }[];
+  indicators: {
+    activeTechnicians: number;
+    newTechnicians: PeriodValue;
+    clients: number;
+    newClients: PeriodValue;
+    completionRate: number | null;
+    avgDurationMinutes: number | null;
+  };
+}

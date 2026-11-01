@@ -98,6 +98,30 @@ export const adminApi = {
     ),
 
   // Technician subscriptions (managed by hand)
+  // Reports & analytics
+  getAnalytics: (params: Record<string, string>) =>
+    request<{ success: boolean; data: import('@/types').Analytics }>(`/admin/analytics?${new URLSearchParams(params)}`),
+
+  /** Downloads a CSV report (needs the auth header, so it can't be a plain link) */
+  downloadReport: async (report: import('@/types').ReportKind, params: Record<string, string>, filename: string) => {
+    const token = getToken();
+    const res = await fetch(`${BASE_URL}/admin/analytics/export?${new URLSearchParams({ ...params, report })}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (res.status === 401) {
+      clearToken();
+      window.location.href = '/login';
+      throw new Error('Session expirée');
+    }
+    if (!res.ok) throw new Error((await res.json().catch(() => null))?.message || 'Erreur serveur');
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
   getSubscriptionStats: () =>
     request<{ success: boolean; data: import('@/types').SubscriptionStats }>('/admin/subscriptions/stats'),
 
