@@ -179,6 +179,9 @@ export const adminApi = {
   getDashboardStats: () =>
     request<{ success: boolean; data: import('@/types').DashboardStats }>('/admin/stats'),
 
+  getReservationStats: (params: Record<string, string> = {}) =>
+    request<{ success: boolean; data: import('@/types').ReservationStats }>(`/admin/reservations/stats?${new URLSearchParams(params)}`),
+
   getReservations: (params: Record<string, string | number> = {}) => {
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
