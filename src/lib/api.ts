@@ -85,6 +85,9 @@ export const adminApi = {
       { method: 'POST', body: JSON.stringify(body) }
     ),
 
+  getTechnicianDetails: (id: number) =>
+    request<{ success: boolean; data: import('@/types').TechnicianDetails }>(`/admin/technicians/${id}`),
+
   deleteUser: (id: number) =>
     request<{ success: boolean; message: string }>(`/admin/users/${id}`, { method: 'DELETE' }),
 

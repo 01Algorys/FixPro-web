@@ -88,6 +88,57 @@ export interface ReviewCounts {
   lowThreshold: number;
 }
 
+export interface TrackingEntry {
+  id: number;
+  reservationId: number;
+  status: string;
+  note: string | null;
+  location: { lat?: number; lng?: number; latitude?: number; longitude?: number } | null;
+  timestamp: string;
+}
+
+export interface TechnicianMission {
+  id: number;
+  date: string;
+  time: string;
+  duration: number;
+  status: ReservationStatus;
+  location: unknown;
+  description: string;
+  emergency: boolean;
+  estimatedPrice: number | null;
+  actualPrice: number | null;
+  startTime: string | null;
+  completedAt: string | null;
+  cancelledAt: string | null;
+  cancellationReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+  client: { id: number; name: string; phone: string | null; avatar: string | null } | null;
+  service: { id: number; name: string; category: string } | null;
+  tracking: TrackingEntry[];
+  notes: { id: number; author: number; content: string; internal: boolean; timestamp: string }[];
+}
+
+export interface TechnicianDetails {
+  profile: Omit<User, 'worker'>;
+  worker: Omit<WorkerProfile, 'services'> & {
+    services: { id: number; name: string; category: string }[];
+    latitude: number | null;
+    longitude: number | null;
+    availability: unknown;
+    portfolio: unknown;
+    certifications: unknown;
+    businessInfo: unknown;
+  };
+  balance: { missions: number; feesGenerated: number; feeAdjustment: number; amountDue: number } | null;
+  stats: { totalReservations: number; byStatus: Partial<Record<ReservationStatus, number>>; gpsPoints: number };
+  reservations: TechnicianMission[];
+  reservationsTruncated: boolean;
+  reviews: (Review & { client: { id: number; name: string } | null })[];
+  paymentLogs: PaymentLog[];
+}
+
 export interface ZoneReservation {
   id: number;
   date: string;

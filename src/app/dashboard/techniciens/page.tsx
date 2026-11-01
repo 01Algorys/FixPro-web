@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import TopBar from '@/components/layout/TopBar';
 import { adminApi } from '@/lib/api';
 import type { User, Pagination, AccountStatus, Service } from '@/types';
@@ -137,9 +138,10 @@ function ActionMenu({ user, pos, loading, onStatusChange, onDelete, onClose }: A
         <p className="text-xs text-gray-400 truncate">{user.email}</p>
       </div>
 
-      <button className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+      <Link href={`/dashboard/techniciens/${user.id}`} onClick={onClose}
+        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
         <Eye className="w-4 h-4 text-gray-400" /> Voir les détails
-      </button>
+      </Link>
 
       <div className="border-t border-gray-100 my-1" />
       <p className="px-3 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
@@ -701,9 +703,10 @@ export default function TechniciensPage() {
 
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <button className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <Link href={`/dashboard/techniciens/${w.id}`} title="Voir les détails"
+                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                           <Eye className="w-4 h-4" />
-                        </button>
+                        </Link>
                         <button
                           onClick={() => openServicesModal(w)}
                           title="Modifier les services"
