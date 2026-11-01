@@ -37,9 +37,6 @@ const STATUS_COLOR: Record<string, string> = {
   REJECTED: '#ef4444', CANCELLED: '#ef4444', EXPIRED: '#9ca3af',
 };
 
-const CATEGORY_LABEL: Record<string, string> = {
-  PLUMBING: 'Plomberie', ELECTRICAL: 'Électricité', HVAC: 'Climatisation', LOCKSMITH: 'Serrurerie',
-};
 
 const toInputDate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -65,6 +62,7 @@ export default function ZonesPage() {
   const [showPoints, setShowPoints]     = useState(false);
   const [showTechnicians, setShowTechs] = useState(true);
 
+  const [categoryLabel, setCategoryLabel] = useState<Record<string, string>>({});
   const [reservations, setReservations] = useState<ZoneReservation[]>([]);
   const [technicians, setTechnicians]   = useState<ZoneTechnician[]>([]);
   const [loading, setLoading]           = useState(true);
@@ -93,6 +91,12 @@ export default function ZonesPage() {
 
   useEffect(() => { fetchZones(); }, [fetchZones]);
 
+  useEffect(() => {
+    adminApi.getCategories()
+      .then(res => setCategoryLabel(Object.fromEntries(res.data.map(c => [c.key, c.name]))))
+      .catch(() => {});
+  }, []);
+
   // Resolve each booking's free-form location to coordinates (or a known city's centre)
   const located = useMemo(() => {
     const rows = category === 'ALL' ? reservations : reservations.filter(r => r.category === category);
@@ -108,11 +112,11 @@ export default function ZonesPage() {
         city: loc.city,
         color: STATUS_COLOR[r.status] ?? '#6b7280',
         label: `Réservation #${r.id}${r.emergency ? ' · urgence' : ''}`,
-        sub: `${new Date(r.date).toLocaleDateString('fr-FR')} · ${RESERVATION_STATUS[r.status]?.label ?? r.status}${r.category ? ` · ${CATEGORY_LABEL[r.category] ?? r.category}` : ''}`,
+        sub: `${new Date(r.date).toLocaleDateString('fr-FR')} · ${RESERVATION_STATUS[r.status]?.label ?? r.status}${r.category ? ` · ${categoryLabel[r.category] ?? r.category}` : ''}`,
       });
     }
     return { points, unplaced, total: rows.length };
-  }, [reservations, category]);
+  }, [reservations, category, categoryLabel]);
 
   const mapTechnicians: MapTechnician[] = useMemo(() => technicians.map(t => ({
     id: t.id,
@@ -190,7 +194,7 @@ export default function ZonesPage() {
             <select value={category} onChange={e => setCategory(e.target.value)}
               className="border border-gray-200 rounded-lg text-xs px-2 py-1.5">
               <option value="ALL">Tous les métiers</option>
-              {Object.entries(CATEGORY_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              {Object.entries(categoryLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
             <span className="text-xs text-gray-500 ml-auto">
               {loading ? 'Chargement…' : `${located.points.length} intervention(s) sur la carte`}

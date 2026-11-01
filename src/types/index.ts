@@ -167,10 +167,32 @@ export interface Service {
   category: string;
   basePrice: number | null;
   priceUnit: string;
+  duration?: number | null;
+  requirements?: string[];
   isActive: boolean;
   isPopular: boolean;
   createdAt: string;
 }
+
+export interface Category {
+  id: number;
+  key: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  color: string | null;
+  order: number;
+  isActive: boolean;
+  createdAt: string;
+  serviceCount: number;
+  technicianCount: number;
+}
+
+export type CategoryInput = Partial<Pick<Category, 'name' | 'description' | 'icon' | 'color' | 'order' | 'isActive'>>;
+export type ServiceInput = Partial<{
+  name: string; description: string; category: string; basePrice: number | null; priceUnit: string;
+  duration: number | null; requirements: string[]; isActive: boolean; isPopular: boolean;
+}>;
 
 export type PaymentAction = 'ADD' | 'REDUCE' | 'RESET';
 
