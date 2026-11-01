@@ -51,8 +51,22 @@ export interface Reservation {
   completedAt?: string | null;
   cancelledAt?: string | null;
   createdAt: string;
-  userInfo?: { id: number; name: string; avatar: string | null } | null;
-  workerInfo?: { id: number; name: string; avatar: string | null } | null;
+  images?: string[];
+  cancellationReason?: string | null;
+  userInfo?: { id: number; name: string; avatar: string | null; phone?: string | null } | null;
+  workerInfo?: { id: number; name: string; avatar: string | null; phone?: string | null } | null;
+  serviceInfo?: { id: number; name: string; category: string } | null;
+}
+
+export interface ReservationStats {
+  total: number;
+  byStatus: Record<ReservationStatus, number>;
+  /** Booked for today (not cancelled) */
+  today: number;
+  /** Scheduled from now on, pending or accepted */
+  upcoming: number;
+  emergencies: number;
+  cities: string[];
 }
 
 export interface Review {
