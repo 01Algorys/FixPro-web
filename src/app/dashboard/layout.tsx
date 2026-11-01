@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { jakarta } from '../fonts';
 import { AlertTriangle, X } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
 import { ShellContext } from '@/components/layout/shell';
@@ -11,8 +11,6 @@ import { adminApi } from '@/lib/api';
 import type { Notification } from '@/types';
 
 const ALERT_POLL_MS = 30_000;
-
-const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'] });
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
