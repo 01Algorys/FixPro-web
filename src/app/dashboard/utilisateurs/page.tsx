@@ -7,8 +7,16 @@ import type { User, UserStats, Pagination, AccountStatus } from '@/types';
 import {
   Users, Wrench, UserPlus, Activity, Download, RefreshCw,
   Search, ChevronLeft, ChevronRight, Eye, MoreVertical,
-  CheckCircle, XCircle, Clock, Shield,
+  CheckCircle, XCircle, Clock, Shield, PauseCircle, Ban,
 } from 'lucide-react';
+
+const STATUS_LABEL: Record<AccountStatus, string> = {
+  APPROVED: 'Approuvé',
+  PENDING_APPROVAL: 'En attente',
+  REJECTED: 'Refusé',
+  SUSPENDED: 'Suspendu (impayé)',
+  BANNED: 'Banni',
+};
 
 // ── Stat card ──────────────────────────────────────────────────────────────
 interface StatCardProps {
@@ -57,6 +65,16 @@ function StatusBadge({ status }: { status: string }) {
       <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Inactif
     </span>
   );
+  if (status === 'SUSPENDED') return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
+      <span className="w-1.5 h-1.5 rounded-full bg-gray-500" /> Suspendu
+    </span>
+  );
+  if (status === 'BANNED') return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white">
+      <span className="w-1.5 h-1.5 rounded-full bg-white" /> Banni
+    </span>
+  );
   return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
       <span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> En attente
@@ -86,6 +104,16 @@ function ApprovalBadge({ status }: { status: string }) {
   if (status === 'REJECTED') return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
       <XCircle className="w-3 h-3" /> Refusé
+    </span>
+  );
+  if (status === 'SUSPENDED') return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
+      <PauseCircle className="w-3 h-3" /> Suspendu
+    </span>
+  );
+  if (status === 'BANNED') return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white">
+      <Ban className="w-3 h-3" /> Banni
     </span>
   );
   return (
@@ -132,7 +160,7 @@ function ActionMenu({ user, pos, loading, onStatusChange, onClose }: ActionMenuP
   }, [onClose]);
 
   // Adjust if menu would overflow the bottom of the viewport
-  const menuHeight = 220;
+  const menuHeight = 300;
   const top = pos.top + menuHeight > window.innerHeight ? pos.top - menuHeight - 8 : pos.top;
 
   const items: {
@@ -162,6 +190,20 @@ function ActionMenu({ user, pos, loading, onStatusChange, onClose }: ActionMenuP
       colorClass: 'text-red-600 hover:bg-red-50',
       status: 'REJECTED',
       hide: user.accountStatus === 'REJECTED',
+    },
+    {
+      label: 'Suspendre (impayé)',
+      icon: PauseCircle,
+      colorClass: 'text-gray-700 hover:bg-gray-100',
+      status: 'SUSPENDED',
+      hide: user.accountStatus === 'SUSPENDED',
+    },
+    {
+      label: 'Bannir',
+      icon: Ban,
+      colorClass: 'text-red-700 hover:bg-red-50',
+      status: 'BANNED',
+      hide: user.accountStatus === 'BANNED',
     },
   ];
 
@@ -213,7 +255,7 @@ function ActionMenu({ user, pos, loading, onStatusChange, onClose }: ActionMenuP
             <p className="text-[10px] text-gray-400">
               Approbation actuelle :&nbsp;
               <span className="font-medium text-gray-600">
-                {user.accountStatus === 'APPROVED' ? 'Approuvé' : user.accountStatus === 'REJECTED' ? 'Refusé' : 'En attente'}
+                {STATUS_LABEL[user.accountStatus]}
               </span>
             </p>
           </div>
@@ -370,6 +412,8 @@ export default function UtilisateursPage() {
                 <option value="APPROVED">Actif</option>
                 <option value="PENDING_APPROVAL">En attente</option>
                 <option value="REJECTED">Inactif</option>
+                <option value="SUSPENDED">Suspendu</option>
+                <option value="BANNED">Banni</option>
               </select>
             </div>
 

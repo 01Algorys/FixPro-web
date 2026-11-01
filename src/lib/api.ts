@@ -79,11 +79,48 @@ export const adminApi = {
       { method: 'PATCH', body: JSON.stringify({ accountStatus }) }
     ),
 
+  createTechnician: (body: { name: string; email: string; password: string; phone?: string; services: number[] }) =>
+    request<{ success: boolean; message: string; data: import('@/types').User }>(
+      '/admin/technicians',
+      { method: 'POST', body: JSON.stringify(body) }
+    ),
+
+  deleteUser: (id: number) =>
+    request<{ success: boolean; message: string }>(`/admin/users/${id}`, { method: 'DELETE' }),
+
   updateWorkerServices: (id: number, services: number[]) =>
     request<{ success: boolean; data: { id: number; userId: number; services: number[] } }>(
       `/admin/users/${id}/services`,
       { method: 'PATCH', body: JSON.stringify({ services }) }
     ),
+
+  // Technician mission-fee payments
+  getPaymentStats: () =>
+    request<{ success: boolean; data: import('@/types').PaymentStats }>('/admin/payments/stats'),
+
+  getTechnicianPayments: (params: Record<string, string | number> = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
+    ).toString();
+    return request<{ success: boolean; data: { technicians: import('@/types').TechnicianPayment[]; pagination: import('@/types').Pagination } }>(
+      `/admin/payments?${qs}`
+    );
+  },
+
+  updateTechnicianBalance: (userId: number, body: { action: import('@/types').PaymentAction; amount?: number; note?: string }) =>
+    request<{ success: boolean; message: string; data: { log: import('@/types').PaymentLog } }>(
+      `/admin/payments/${userId}`,
+      { method: 'PATCH', body: JSON.stringify(body) }
+    ),
+
+  getPaymentLogs: (params: Record<string, string | number> = {}, userId?: number) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
+    ).toString();
+    return request<{ success: boolean; data: { logs: import('@/types').PaymentLog[]; pagination: import('@/types').Pagination } }>(
+      `/admin/payments${userId ? `/${userId}` : ''}/logs?${qs}`
+    );
+  },
 
   getDashboardStats: () =>
     request<{ success: boolean; data: import('@/types').DashboardStats }>('/admin/stats'),
@@ -101,7 +138,7 @@ export const adminApi = {
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
     ).toString();
-    return request<{ success: boolean; data: { reviews: import('@/types').Review[]; pagination: import('@/types').Pagination } }>(
+    return request<{ success: boolean; data: { reviews: import('@/types').Review[]; counts: import('@/types').ReviewCounts; pagination: import('@/types').Pagination } }>(
       `/admin/reviews?${qs}`
     );
   },
@@ -112,6 +149,24 @@ export const adminApi = {
     ).toString();
     return request<{ success: boolean; data: { notifications: import('@/types').Notification[]; pagination: import('@/types').Pagination } }>(
       `/admin/notifications?${qs}`
+    );
+  },
+
+  getUnreadAlertCount: () =>
+    request<{ success: boolean; data: { count: number; latest: import('@/types').Notification | null } }>(
+      '/admin/notifications/unread-count'
+    ),
+
+  markAlertsRead: (ids?: number[]) =>
+    request<{ success: boolean; data: { updated: number } }>(
+      '/admin/notifications/read',
+      { method: 'PATCH', body: JSON.stringify(ids ? { ids } : {}) }
+    ),
+
+  getZones: (params: Record<string, string> = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request<{ success: boolean; data: { reservations: import('@/types').ZoneReservation[]; technicians: import('@/types').ZoneTechnician[] } }>(
+      `/admin/zones?${qs}`
     );
   },
 

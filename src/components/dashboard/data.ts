@@ -47,6 +47,8 @@ export const ACCOUNT_STATUS: Record<AccountStatus, { label: string; tone: Tone }
   PENDING_APPROVAL: { label: 'En attente', tone: 'amber' },
   APPROVED:         { label: 'Approuvé',   tone: 'green' },
   REJECTED:         { label: 'Refusé',     tone: 'red' },
+  SUSPENDED:        { label: 'Suspendu',   tone: 'gray' },
+  BANNED:           { label: 'Banni',      tone: 'red' },
 };
 
 // ─── Locations ──────────────────────────────────────────────────────────────

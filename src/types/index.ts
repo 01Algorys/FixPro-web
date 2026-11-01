@@ -1,5 +1,5 @@
 export type Role = 'USER' | 'WORKER' | 'ADMIN';
-export type AccountStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
+export type AccountStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'SUSPENDED' | 'BANNED';
 export type ReservationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
 
 export interface WorkerProfile {
@@ -77,8 +77,36 @@ export interface Notification {
   title: string;
   message: string;
   type: string;
+  data?: Record<string, unknown> | null;
   isRead: boolean;
   createdAt: string;
+}
+
+export interface ReviewCounts {
+  low: number;
+  reported: number;
+  lowThreshold: number;
+}
+
+export interface ZoneReservation {
+  id: number;
+  date: string;
+  status: ReservationStatus;
+  location: unknown;
+  serviceId: number;
+  category: string | null;
+  emergency: boolean;
+}
+
+export interface ZoneTechnician {
+  id: number;
+  name: string;
+  accountStatus: AccountStatus;
+  lat: number;
+  lng: number;
+  serviceArea: unknown;
+  averageRating: number;
+  jobsCompleted: number;
 }
 
 export interface Service {
@@ -91,6 +119,47 @@ export interface Service {
   isActive: boolean;
   isPopular: boolean;
   createdAt: string;
+}
+
+export type PaymentAction = 'ADD' | 'REDUCE' | 'RESET';
+
+export interface TechnicianPayment {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+  accountStatus: AccountStatus;
+  missions: number;
+  feesGenerated: number;
+  feeAdjustment: number;
+  amountDue: number;
+  lastPaymentAt: string | null;
+}
+
+export interface PaymentStats {
+  feePerMission: number;
+  totalTechnicians: number;
+  techniciansWithDue: number;
+  totalDue: number;
+  totalMissions: number;
+  totalFeesGenerated: number;
+  collectedTotal: number;
+  collectedThisMonth: number;
+}
+
+export interface PaymentLog {
+  id: number;
+  workerId: number;
+  adminId: number;
+  action: PaymentAction;
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  note: string | null;
+  createdAt: string;
+  workerInfo?: { id: number; name: string; avatar: string | null } | null;
+  adminInfo?: { id: number; name: string; avatar: string | null } | null;
 }
 
 export interface Pagination {

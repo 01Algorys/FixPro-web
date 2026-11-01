@@ -19,9 +19,10 @@ interface TopBarProps {
   notifCount?: number;
 }
 
-export default function TopBar({ notifCount = 0 }: TopBarProps) {
+export default function TopBar({ notifCount: notifCountProp }: TopBarProps) {
   const router = useRouter();
-  const { openSidebar } = useShell();
+  const { openSidebar, alertCount } = useShell();
+  const notifCount = notifCountProp ?? alertCount;
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
