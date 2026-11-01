@@ -93,6 +93,47 @@ export interface Service {
   createdAt: string;
 }
 
+export type PaymentAction = 'ADD' | 'REDUCE' | 'RESET';
+
+export interface TechnicianPayment {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+  accountStatus: AccountStatus;
+  missions: number;
+  feesGenerated: number;
+  feeAdjustment: number;
+  amountDue: number;
+  lastPaymentAt: string | null;
+}
+
+export interface PaymentStats {
+  feePerMission: number;
+  totalTechnicians: number;
+  techniciansWithDue: number;
+  totalDue: number;
+  totalMissions: number;
+  totalFeesGenerated: number;
+  collectedTotal: number;
+  collectedThisMonth: number;
+}
+
+export interface PaymentLog {
+  id: number;
+  workerId: number;
+  adminId: number;
+  action: PaymentAction;
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  note: string | null;
+  createdAt: string;
+  workerInfo?: { id: number; name: string; avatar: string | null } | null;
+  adminInfo?: { id: number; name: string; avatar: string | null } | null;
+}
+
 export interface Pagination {
   total: number;
   page: number;
