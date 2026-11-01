@@ -224,6 +224,35 @@ export const adminApi = {
     );
   },
 
+  getCategories: () =>
+    request<{ success: boolean; data: import('@/types').Category[] }>('/admin/categories'),
+
+  createCategory: (body: import('@/types').CategoryInput) =>
+    request<{ success: boolean; message: string; data: import('@/types').Category }>(
+      '/admin/categories', { method: 'POST', body: JSON.stringify(body) }
+    ),
+
+  updateCategory: (id: number, body: import('@/types').CategoryInput) =>
+    request<{ success: boolean; message: string; data: import('@/types').Category }>(
+      `/admin/categories/${id}`, { method: 'PUT', body: JSON.stringify(body) }
+    ),
+
+  deleteCategory: (id: number) =>
+    request<{ success: boolean; message: string }>(`/admin/categories/${id}`, { method: 'DELETE' }),
+
+  createService: (body: import('@/types').ServiceInput) =>
+    request<{ success: boolean; message: string; data: import('@/types').Service }>(
+      '/admin/services', { method: 'POST', body: JSON.stringify(body) }
+    ),
+
+  updateService: (id: number, body: import('@/types').ServiceInput) =>
+    request<{ success: boolean; message: string; data: import('@/types').Service }>(
+      `/admin/services/${id}`, { method: 'PUT', body: JSON.stringify(body) }
+    ),
+
+  deleteService: (id: number) =>
+    request<{ success: boolean; message: string }>(`/admin/services/${id}`, { method: 'DELETE' }),
+
   getServices: (params: Record<string, string | number> = {}) => {
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
