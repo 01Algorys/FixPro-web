@@ -62,3 +62,8 @@
 
 /* Arabic letters must stay joined: drop the tight/wide tracking used for Latin headings */
 [dir='rtl'] * { letter-spacing: 0 !important; }
+
+/* Self-hosted fonts (see src/app/fonts.ts) */
+.font-jakarta { font-family: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif; }
+.font-cairo { font-family: 'Cairo Variable', ui-sans-serif, system-ui, sans-serif; }
+.font-caveat { font-family: 'Caveat', cursive; }

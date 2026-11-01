@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Plus_Jakarta_Sans, Caveat, Cairo } from 'next/font/google';
+import { jakarta, caveat, cairo } from './fonts';
 import {
   ChevronRight, ChevronDown, Menu, X, Download, ArrowRight, Check,
   Facebook, Instagram, Linkedin, Mail, Phone, Send, MapPin,
@@ -16,10 +16,6 @@ import {
 } from '@/components/home/icons';
 import { Reveal, CountUp } from '@/components/home/motion';
 import { DICTS, LANGS, type Dict, type Lang } from '@/components/home/i18n';
-
-const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'] });
-const caveat = Caveat({ subsets: ['latin'], weight: ['700'] });
-const cairo = Cairo({ subsets: ['arabic', 'latin'], weight: ['400', '500', '600', '700', '800'] });
 
 const BLUE = '#1d6ff2';
 const LANG_STORAGE_KEY = 'fixpro-lang';
