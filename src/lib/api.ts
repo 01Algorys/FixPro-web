@@ -79,6 +79,15 @@ export const adminApi = {
       { method: 'PATCH', body: JSON.stringify({ accountStatus }) }
     ),
 
+  createTechnician: (body: { name: string; email: string; password: string; phone?: string; services: number[] }) =>
+    request<{ success: boolean; message: string; data: import('@/types').User }>(
+      '/admin/technicians',
+      { method: 'POST', body: JSON.stringify(body) }
+    ),
+
+  deleteUser: (id: number) =>
+    request<{ success: boolean; message: string }>(`/admin/users/${id}`, { method: 'DELETE' }),
+
   updateWorkerServices: (id: number, services: number[]) =>
     request<{ success: boolean; data: { id: number; userId: number; services: number[] } }>(
       `/admin/users/${id}/services`,

@@ -1,5 +1,5 @@
 export type Role = 'USER' | 'WORKER' | 'ADMIN';
-export type AccountStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
+export type AccountStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'SUSPENDED' | 'BANNED';
 export type ReservationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
 
 export interface WorkerProfile {

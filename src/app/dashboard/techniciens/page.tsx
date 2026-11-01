@@ -7,7 +7,16 @@ import type { User, Pagination, AccountStatus, Service } from '@/types';
 import {
   Wrench, CheckCircle, XCircle, Clock, Search, ChevronLeft, ChevronRight,
   Eye, Star, RefreshCw, AlertCircle, MoreVertical, Shield,
+  PauseCircle, Ban, Trash2, Plus, X,
 } from 'lucide-react';
+
+const STATUS_LABEL: Record<AccountStatus, string> = {
+  APPROVED: 'Approuvé',
+  PENDING_APPROVAL: 'En attente',
+  REJECTED: 'Refusé',
+  SUSPENDED: 'Suspendu (impayé)',
+  BANNED: 'Banni',
+};
 
 // ── Badges ─────────────────────────────────────────────────────────────────
 function ApprovalBadge({ status }: { status: string }) {
@@ -19,6 +28,16 @@ function ApprovalBadge({ status }: { status: string }) {
   if (status === 'REJECTED') return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
       <XCircle className="w-3 h-3" /> Refusé
+    </span>
+  );
+  if (status === 'SUSPENDED') return (
+    <span title="Abonnement impayé" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
+      <PauseCircle className="w-3 h-3" /> Suspendu
+    </span>
+  );
+  if (status === 'BANNED') return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-600 text-white">
+      <Ban className="w-3 h-3" /> Banni
     </span>
   );
   return (
@@ -49,10 +68,11 @@ interface ActionMenuProps {
   pos: { top: number; left: number };
   loading: boolean;
   onStatusChange: (userId: number, status: AccountStatus) => void;
+  onDelete: (user: User) => void;
   onClose: () => void;
 }
 
-function ActionMenu({ user, pos, loading, onStatusChange, onClose }: ActionMenuProps) {
+function ActionMenu({ user, pos, loading, onStatusChange, onDelete, onClose }: ActionMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,12 +83,14 @@ function ActionMenu({ user, pos, loading, onStatusChange, onClose }: ActionMenuP
     return () => { clearTimeout(t); document.removeEventListener('mousedown', handler); };
   }, [onClose]);
 
-  const menuHeight = 240;
+  const menuHeight = 360;
   const top = pos.top + menuHeight > window.innerHeight ? pos.top - menuHeight - 8 : pos.top;
 
   const items: { label: string; icon: React.ElementType; colorClass: string; status: AccountStatus; hide: boolean }[] = [
     {
-      label: 'Approuver le compte',
+      label: user.accountStatus === 'SUSPENDED' || user.accountStatus === 'BANNED'
+        ? 'Réactiver le compte'
+        : 'Approuver le compte',
       icon: CheckCircle,
       colorClass: 'text-green-700 hover:bg-green-50',
       status: 'APPROVED',
@@ -87,6 +109,20 @@ function ActionMenu({ user, pos, loading, onStatusChange, onClose }: ActionMenuP
       colorClass: 'text-red-600 hover:bg-red-50',
       status: 'REJECTED',
       hide: user.accountStatus === 'REJECTED',
+    },
+    {
+      label: 'Suspendre (abonnement impayé)',
+      icon: PauseCircle,
+      colorClass: 'text-gray-700 hover:bg-gray-100',
+      status: 'SUSPENDED',
+      hide: user.accountStatus === 'SUSPENDED',
+    },
+    {
+      label: 'Bannir',
+      icon: Ban,
+      colorClass: 'text-red-700 hover:bg-red-50',
+      status: 'BANNED',
+      hide: user.accountStatus === 'BANNED',
     },
   ];
 
@@ -126,12 +162,21 @@ function ActionMenu({ user, pos, loading, onStatusChange, onClose }: ActionMenuP
       ))}
 
       <div className="border-t border-gray-100 my-1" />
+      <button
+        disabled={loading}
+        onClick={() => { onClose(); onDelete(user); }}
+        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+      >
+        <Trash2 className="w-4 h-4" /> Supprimer le compte
+      </button>
+
+      <div className="border-t border-gray-100 my-1" />
       <div className="px-3 py-1.5 flex items-center gap-1.5">
         <Shield className="w-3 h-3 text-gray-400" />
         <p className="text-[10px] text-gray-400">
           Statut actuel :&nbsp;
           <span className="font-medium text-gray-600">
-            {user.accountStatus === 'APPROVED' ? 'Approuvé' : user.accountStatus === 'REJECTED' ? 'Refusé' : 'En attente'}
+            {STATUS_LABEL[user.accountStatus]}
           </span>
         </p>
       </div>
@@ -216,6 +261,123 @@ function ServicesModal({ user, allServices, loadingServices, saving, onSave, onC
   );
 }
 
+// ── Create technician modal ─────────────────────────────────────────────────
+interface CreateTechnicianModalProps {
+  allServices: Service[];
+  loadingServices: boolean;
+  onCreated: () => void;
+  onClose: () => void;
+}
+
+function CreateTechnicianModal({ allServices, loadingServices, onCreated, onClose }: CreateTechnicianModalProps) {
+  const [name, setName]         = useState('');
+  const [email, setEmail]       = useState('');
+  const [phone, setPhone]       = useState('');
+  const [password, setPassword] = useState('');
+  const [services, setServices] = useState<number[]>([]);
+  const [saving, setSaving]     = useState(false);
+  const [error, setError]       = useState('');
+
+  const toggle = (id: number) => {
+    setServices(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSaving(true);
+    try {
+      await adminApi.createTechnician({
+        name, email, password, services,
+        ...(phone ? { phone } : {}),
+      });
+      onCreated();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la création');
+    }
+    setSaving(false);
+  };
+
+  const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400';
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4">
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-xl border border-gray-100 w-full max-w-md max-h-[90vh] flex flex-col">
+        <div className="px-5 py-4 border-b border-gray-100 flex items-start justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Ajouter un technicien</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Le compte est créé directement approuvé</p>
+          </div>
+          <button type="button" onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 rounded-lg">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="px-5 py-4 overflow-y-auto flex-1 space-y-3">
+          {error && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-3 py-2 text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+            </div>
+          )}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Nom complet *</label>
+            <input required minLength={2} value={name} onChange={e => setName(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">E-mail *</label>
+            <input required type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Téléphone</label>
+            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+216 …" className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Mot de passe *</label>
+            <input required minLength={8} type="text" value={password} onChange={e => setPassword(e.target.value)}
+              placeholder="8 caractères minimum" className={inputCls} />
+            <p className="text-[11px] text-gray-400 mt-1">À communiquer au technicien pour sa première connexion.</p>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Services</label>
+            {loadingServices ? (
+              <div className="h-16 bg-gray-100 rounded animate-pulse" />
+            ) : allServices.length === 0 ? (
+              <p className="text-xs text-gray-400">Aucun service disponible</p>
+            ) : (
+              <div className="border border-gray-100 rounded-lg max-h-40 overflow-y-auto">
+                {allServices.map(service => (
+                  <label key={service.id} className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={services.includes(service.id)}
+                      onChange={() => toggle(service.id)}
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500/30"
+                    />
+                    <span className="flex-1 text-sm text-gray-700">{service.name}</span>
+                    <span className="text-xs text-gray-400">{service.category}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-end gap-2">
+          <button type="button" onClick={onClose} disabled={saving}
+            className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50">
+            Annuler
+          </button>
+          <button type="submit" disabled={saving}
+            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+            {saving && <span className="w-3.5 h-3.5 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />}
+            Créer le technicien
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 // ── Main page ──────────────────────────────────────────────────────────────
 export default function TechniciensPage() {
   const [workers, setWorkers]             = useState<User[]>([]);
@@ -228,6 +390,8 @@ export default function TechniciensPage() {
   const [allServices, setAllServices]       = useState<Service[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
   const [savingServices, setSavingServices] = useState(false);
+  const [creating, setCreating]             = useState(false);
+  const [pageError, setPageError]           = useState('');
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
@@ -236,6 +400,7 @@ export default function TechniciensPage() {
   const [pendingCount, setPendingCount]   = useState(0);
   const [approvedCount, setApprovedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
+  const [suspendedCount, setSuspendedCount] = useState(0);
 
   const fetchWorkers = useCallback(async () => {
     setLoading(true);
@@ -257,10 +422,12 @@ export default function TechniciensPage() {
       adminApi.getUsers({ role: 'WORKER', status: 'PENDING_APPROVAL', limit: 1 }),
       adminApi.getUsers({ role: 'WORKER', status: 'APPROVED',         limit: 1 }),
       adminApi.getUsers({ role: 'WORKER', status: 'REJECTED',         limit: 1 }),
-    ]).then(([p, a, r]) => {
+      adminApi.getUsers({ role: 'WORKER', status: 'SUSPENDED',        limit: 1 }),
+    ]).then(([p, a, r, s]) => {
       setPendingCount(p.data.pagination.total);
       setApprovedCount(a.data.pagination.total);
       setRejectedCount(r.data.pagination.total);
+      setSuspendedCount(s.data.pagination.total);
     }).catch(() => {});
   }, [workers]);
 
@@ -271,9 +438,43 @@ export default function TechniciensPage() {
       await adminApi.updateUserStatus(userId, newStatus);
       setWorkers(prev => prev.map(u => u.id === userId ? { ...u, accountStatus: newStatus } : u));
     } catch (err) {
-      console.error('Status update failed', err);
+      setPageError(err instanceof Error ? err.message : 'Échec de la mise à jour du statut');
     }
     setActionLoading(null);
+  };
+
+  const handleDelete = async (user: User) => {
+    if (!window.confirm(`Supprimer définitivement le compte de ${user.name} ? Cette action est irréversible.`)) return;
+    setActionLoading(user.id);
+    try {
+      await adminApi.deleteUser(user.id);
+      await fetchWorkers();
+    } catch (err) {
+      setPageError(err instanceof Error ? err.message : 'Échec de la suppression');
+    }
+    setActionLoading(null);
+  };
+
+  const loadServices = async () => {
+    if (allServices.length > 0) return;
+    setLoadingServices(true);
+    try {
+      const res = await adminApi.getServices({ limit: 100 });
+      setAllServices(res.data.services);
+    } catch (err) {
+      console.error('Failed to load services', err);
+    }
+    setLoadingServices(false);
+  };
+
+  const openCreateModal = () => {
+    setCreating(true);
+    loadServices();
+  };
+
+  const handleCreated = () => {
+    setCreating(false);
+    fetchWorkers();
   };
 
   const toggleMenu = (e: React.MouseEvent<HTMLButtonElement>, user: User) => {
@@ -282,18 +483,9 @@ export default function TechniciensPage() {
     setOpenMenu({ user, pos: { top: rect.bottom + 4, left: rect.right - 224 } });
   };
 
-  const openServicesModal = async (user: User) => {
+  const openServicesModal = (user: User) => {
     setServicesUser(user);
-    if (allServices.length === 0) {
-      setLoadingServices(true);
-      try {
-        const res = await adminApi.getServices({ limit: 100 });
-        setAllServices(res.data.services);
-      } catch (err) {
-        console.error('Failed to load services', err);
-      }
-      setLoadingServices(false);
-    }
+    loadServices();
   };
 
   const handleSaveServices = async (userId: number, serviceIds: number[]) => {
@@ -321,13 +513,29 @@ export default function TechniciensPage() {
     <>
       <TopBar breadcrumb={[{ label: 'Tableau de bord', href: '/dashboard' }, { label: 'Techniciens' }]} />
       <main className="p-6 flex-1">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Techniciens</h1>
-          <p className="text-gray-500 text-sm mt-1">Gérez les comptes techniciens et les demandes d&apos;approbation</p>
+        <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Techniciens</h1>
+            <p className="text-gray-500 text-sm mt-1">Gérez les comptes techniciens et les demandes d&apos;approbation</p>
+          </div>
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Ajouter un technicien
+          </button>
         </div>
 
+        {pageError && (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span className="flex-1">{pageError}</span>
+            <button onClick={() => setPageError('')} className="p-0.5 hover:text-red-900"><X className="w-4 h-4" /></button>
+          </div>
+        )}
+
         {/* Summary cards */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-xl shadow-sm border border-orange-100 p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
@@ -366,6 +574,17 @@ export default function TechniciensPage() {
               </div>
             </div>
           </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                <PauseCircle className="w-5 h-5 text-gray-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Suspendus (impayés)</p>
+                <p className="text-2xl font-bold text-gray-900">{suspendedCount}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Filters */}
@@ -383,6 +602,8 @@ export default function TechniciensPage() {
               <option value="PENDING_APPROVAL">En attente d&apos;approbation</option>
               <option value="APPROVED">Approuvés</option>
               <option value="REJECTED">Refusés</option>
+              <option value="SUSPENDED">Suspendus (impayés)</option>
+              <option value="BANNED">Bannis</option>
             </select>
             <button onClick={() => { setSearch(''); setStatus('ALL'); setPage(1); }}
               className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
@@ -538,7 +759,17 @@ export default function TechniciensPage() {
           pos={openMenu.pos}
           loading={actionLoading === openMenu.user.id}
           onStatusChange={handleStatusChange}
+          onDelete={handleDelete}
           onClose={() => setOpenMenu(null)}
+        />
+      )}
+
+      {creating && (
+        <CreateTechnicianModal
+          allServices={allServices}
+          loadingServices={loadingServices}
+          onCreated={handleCreated}
+          onClose={() => setCreating(false)}
         />
       )}
 
