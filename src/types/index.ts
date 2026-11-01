@@ -77,8 +77,36 @@ export interface Notification {
   title: string;
   message: string;
   type: string;
+  data?: Record<string, unknown> | null;
   isRead: boolean;
   createdAt: string;
+}
+
+export interface ReviewCounts {
+  low: number;
+  reported: number;
+  lowThreshold: number;
+}
+
+export interface ZoneReservation {
+  id: number;
+  date: string;
+  status: ReservationStatus;
+  location: unknown;
+  serviceId: number;
+  category: string | null;
+  emergency: boolean;
+}
+
+export interface ZoneTechnician {
+  id: number;
+  name: string;
+  accountStatus: AccountStatus;
+  lat: number;
+  lng: number;
+  serviceArea: unknown;
+  averageRating: number;
+  jobsCompleted: number;
 }
 
 export interface Service {

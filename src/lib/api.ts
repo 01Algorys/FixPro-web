@@ -138,7 +138,7 @@ export const adminApi = {
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
     ).toString();
-    return request<{ success: boolean; data: { reviews: import('@/types').Review[]; pagination: import('@/types').Pagination } }>(
+    return request<{ success: boolean; data: { reviews: import('@/types').Review[]; counts: import('@/types').ReviewCounts; pagination: import('@/types').Pagination } }>(
       `/admin/reviews?${qs}`
     );
   },
@@ -149,6 +149,24 @@ export const adminApi = {
     ).toString();
     return request<{ success: boolean; data: { notifications: import('@/types').Notification[]; pagination: import('@/types').Pagination } }>(
       `/admin/notifications?${qs}`
+    );
+  },
+
+  getUnreadAlertCount: () =>
+    request<{ success: boolean; data: { count: number; latest: import('@/types').Notification | null } }>(
+      '/admin/notifications/unread-count'
+    ),
+
+  markAlertsRead: (ids?: number[]) =>
+    request<{ success: boolean; data: { updated: number } }>(
+      '/admin/notifications/read',
+      { method: 'PATCH', body: JSON.stringify(ids ? { ids } : {}) }
+    ),
+
+  getZones: (params: Record<string, string> = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request<{ success: boolean; data: { reservations: import('@/types').ZoneReservation[]; technicians: import('@/types').ZoneTechnician[] } }>(
+      `/admin/zones?${qs}`
     );
   },
 

@@ -3,14 +3,17 @@
 import { useEffect, useState, useCallback } from 'react';
 import TopBar from '@/components/layout/TopBar';
 import { adminApi } from '@/lib/api';
-import type { Review, Pagination } from '@/types';
-import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import type { Review, ReviewCounts, Pagination } from '@/types';
+import { Star, ChevronLeft, ChevronRight, AlertTriangle, Flag, ArrowUp, ArrowDown } from 'lucide-react';
 
-function Stars({ rating }: { rating: number }) {
+type Filter = 'ALL' | 'LOW' | 'REPORTED';
+
+function Stars({ rating, bad }: { rating: number; bad?: boolean }) {
+  const on = bad ? 'text-red-500 fill-red-500' : 'text-yellow-400 fill-yellow-400';
   return (
     <div className="flex items-center gap-0.5">
       {Array.from({ length: 5 }, (_, i) => (
-        <Star key={i} className={`w-3.5 h-3.5 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'}`} />
+        <Star key={i} className={`w-3.5 h-3.5 ${i < rating ? on : 'text-gray-200 fill-gray-200'}`} />
       ))}
     </div>
   );
@@ -21,18 +24,45 @@ export default function AvisPage() {
   const [pagination, setPagination] = useState<Pagination>({ total: 0, page: 1, limit: 10, totalPages: 1 });
   const [loading, setLoading]       = useState(true);
   const [page, setPage]             = useState(1);
+  const [counts, setCounts]         = useState<ReviewCounts>({ low: 0, reported: 0, lowThreshold: 3 });
+  const [filter, setFilter]         = useState<Filter | null>(null);
+  const [sortBy, setSortBy]         = useState<'createdAt' | 'rating'>('createdAt');
+  const [sortOrder, setSortOrder]   = useState<'asc' | 'desc'>('desc');
+
+  // The alert toast links here with ?filter=LOW
+  useEffect(() => {
+    const f = new URLSearchParams(window.location.search).get('filter');
+    setFilter(f === 'LOW' || f === 'REPORTED' ? f : 'ALL');
+  }, []);
 
   const fetch = useCallback(async () => {
+    if (!filter) return;
     setLoading(true);
     try {
-      const res = await adminApi.getReviews({ page, limit: 10 });
+      const res = await adminApi.getReviews({ page, limit: 10, filter, sortBy, sortOrder });
       setReviews(res.data.reviews);
       setPagination(res.data.pagination);
+      setCounts(res.data.counts);
     } catch {}
     setLoading(false);
-  }, [page]);
+  }, [page, filter, sortBy, sortOrder]);
 
   useEffect(() => { fetch(); }, [fetch]);
+
+  const isBad = (r: Review) => r.rating < counts.lowThreshold;
+
+  const changeFilter = (f: Filter) => {
+    setFilter(f);
+    setPage(1);
+    window.history.replaceState(null, '', f === 'ALL' ? '/dashboard/avis' : `/dashboard/avis?filter=${f}`);
+  };
+
+  const toggleRatingSort = () => {
+    if (sortBy !== 'rating') { setSortBy('rating'); setSortOrder('asc'); }
+    else if (sortOrder === 'asc') setSortOrder('desc');
+    else { setSortBy('createdAt'); setSortOrder('desc'); }
+    setPage(1);
+  };
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -49,13 +79,54 @@ export default function AvisPage() {
           <p className="text-gray-500 text-sm mt-1">Modérez les avis laissés par les clients</p>
         </div>
 
+        {counts.low > 0 && filter !== 'LOW' && (
+          <button onClick={() => changeFilter('LOW')}
+            className="w-full mb-4 flex items-center gap-3 bg-red-50 border border-red-200 text-left rounded-xl px-4 py-3 hover:bg-red-100/70 transition-colors">
+            <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+            <span className="text-sm text-red-800 flex-1">
+              <span className="font-semibold">{counts.low} avis négatif{counts.low > 1 ? 's' : ''}</span> (moins de {counts.lowThreshold} étoiles) à surveiller
+            </span>
+            <span className="text-xs font-semibold text-red-700">Voir →</span>
+          </button>
+        )}
+
+        <div className="flex items-center gap-2 mb-4 flex-wrap">
+          {([
+            { key: 'ALL',      label: 'Tous les avis', count: null },
+            { key: 'LOW',      label: 'Avis négatifs', count: counts.low },
+            { key: 'REPORTED', label: 'Signalés',      count: counts.reported },
+          ] as { key: Filter; label: string; count: number | null }[]).map(t => (
+            <button key={t.key} onClick={() => changeFilter(t.key)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                filter === t.key
+                  ? t.key === 'LOW' ? 'bg-red-600 text-white border-red-600' : 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+              }`}>
+              {t.key === 'LOW' && <AlertTriangle className="w-3.5 h-3.5" />}
+              {t.key === 'REPORTED' && <Flag className="w-3.5 h-3.5" />}
+              {t.label}
+              {t.count !== null && (
+                <span className={`text-xs px-1.5 rounded-full ${filter === t.key ? 'bg-white/25' : t.key === 'LOW' && t.count > 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100'}`}>
+                  {t.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
                   {['ID', 'Client', 'Technicien', 'Note', 'Commentaire', 'Vérifié', 'Signalé', 'Date'].map(h => (
-                    <th key={h} className="text-left text-xs font-semibold text-gray-500 px-4 py-3">{h}</th>
+                    <th key={h} className="text-left text-xs font-semibold text-gray-500 px-4 py-3">
+                      {h === 'Note' ? (
+                        <button onClick={toggleRatingSort} className={`inline-flex items-center gap-1 hover:text-gray-800 ${sortBy === 'rating' ? 'text-gray-800' : ''}`}>
+                          Note {sortBy === 'rating' && (sortOrder === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />)}
+                        </button>
+                      ) : h}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -69,12 +140,27 @@ export default function AvisPage() {
                 ) : reviews.length === 0 ? (
                   <tr><td colSpan={8} className="text-center text-gray-400 py-12 text-sm">Aucun avis trouvé</td></tr>
                 ) : reviews.map(r => (
-                  <tr key={r.id} className={`hover:bg-gray-50/50 transition-colors ${r.reported ? 'bg-red-50/30' : ''}`}>
+                  <tr key={r.id} className={`transition-colors ${
+                    isBad(r)
+                      ? 'bg-red-50 hover:bg-red-100/60 shadow-[inset_4px_0_0_0_#dc2626]'
+                      : r.reported ? 'bg-red-50/30 hover:bg-gray-50/50' : 'hover:bg-gray-50/50'
+                  }`}>
                     <td className="px-4 py-3 text-sm font-mono text-gray-500">#{r.id}</td>
                     <td className="px-4 py-3 text-sm text-gray-700">{r.userInfo?.name ?? `#${r.userId}`}</td>
-                    <td className="px-4 py-3 text-sm text-gray-700">{r.workerInfo?.name ?? `#${r.workerId}`}</td>
-                    <td className="px-4 py-3"><Stars rating={r.rating} /></td>
-                    <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{r.comment ?? '—'}</td>
+                    <td className={`px-4 py-3 text-sm ${isBad(r) ? 'font-semibold text-red-800' : 'text-gray-700'}`}>{r.workerInfo?.name ?? `#${r.workerId}`}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-1">
+                        <Stars rating={r.rating} bad={isBad(r)} />
+                        {isBad(r) && (
+                          <span className="inline-flex w-fit items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-red-600 text-white">
+                            <AlertTriangle className="w-3 h-3" /> Avis négatif
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className={`px-4 py-3 text-sm max-w-xs ${isBad(r) ? 'text-red-900 font-medium whitespace-normal' : 'text-gray-600 truncate'}`}>
+                      {r.comment || '—'}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${r.isVerified ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                         {r.isVerified ? 'Vérifié' : 'Non vérifié'}
