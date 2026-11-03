@@ -914,6 +914,10 @@ export default function HomePage() {
 
         <div className="border-t border-white/10 py-5 text-center text-xs text-gray-500">
           © {new Date().getFullYear()} FixPro. {t.footer.rights}
+          {' · '}
+          <Link href="/politique-de-confidentialite" className="hover:text-white transition-colors">
+            {isAr ? 'سياسة الخصوصية' : lang === 'en' ? 'Privacy policy' : 'Politique de confidentialité'}
+          </Link>
         </div>
       </footer>
     </div>
