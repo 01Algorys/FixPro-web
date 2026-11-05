@@ -91,6 +91,15 @@ export const adminApi = {
       { method: 'POST', body: JSON.stringify(body) }
     ),
 
+  getUserDocuments: (id: number) =>
+    request<{ success: boolean; data: import('@/types').VerificationDocuments }>(`/admin/users/${id}/documents`),
+
+  rejectUserDocument: (id: number, documentId: number, reason: string) =>
+    request<{ success: boolean; message: string }>(
+      `/admin/users/${id}/documents/${documentId}/reject`,
+      { method: 'PATCH', body: JSON.stringify({ reason }) }
+    ),
+
   getTechnicianDetails: (id: number) =>
     request<{ success: boolean; data: import('@/types').TechnicianDetails }>(`/admin/technicians/${id}`),
 
