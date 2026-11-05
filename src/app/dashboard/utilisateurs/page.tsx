@@ -7,7 +7,7 @@ import type { User, UserStats, Pagination, AccountStatus } from '@/types';
 import {
   Users, Wrench, UserPlus, Activity, Download, RefreshCw,
   Search, ChevronLeft, ChevronRight, Eye, MoreVertical,
-  CheckCircle, XCircle, Clock, Shield, PauseCircle, Ban,
+  CheckCircle, XCircle, Clock, Shield, PauseCircle, Ban, X, AlertCircle,
 } from 'lucide-react';
 
 const STATUS_LABEL: Record<AccountStatus, string> = {
@@ -266,12 +266,92 @@ function ActionMenu({ user, pos, loading, onStatusChange, onClose }: ActionMenuP
 }
 
 // ── Main page ──────────────────────────────────────────────────────────────
+// ── Create client modal ────────────────────────────────────────────────────
+function CreateUserModal({ onCreated, onClose }: { onCreated: () => void; onClose: () => void }) {
+  const [name, setName]         = useState('');
+  const [email, setEmail]       = useState('');
+  const [phone, setPhone]       = useState('');
+  const [password, setPassword] = useState('');
+  const [saving, setSaving]     = useState(false);
+  const [error, setError]       = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSaving(true);
+    try {
+      await adminApi.createClient({ name, email, password, ...(phone ? { phone } : {}) });
+      onCreated();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la création');
+    }
+    setSaving(false);
+  };
+
+  const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400';
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4">
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-xl border border-gray-100 w-full max-w-md max-h-[90vh] flex flex-col">
+        <div className="px-5 py-4 border-b border-gray-100 flex items-start justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Ajouter un utilisateur</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Crée un compte client. Pour un technicien, passez par la page Techniciens.</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Fermer" className="p-1 text-gray-400 hover:text-gray-600 rounded-lg">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="px-5 py-4 overflow-y-auto flex-1 space-y-3">
+          {error && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-3 py-2 text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+            </div>
+          )}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Nom complet *</label>
+            <input required minLength={2} value={name} onChange={e => setName(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">E-mail *</label>
+            <input required type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Téléphone</label>
+            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+216 …" className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Mot de passe *</label>
+            <input required minLength={8} type="text" value={password} onChange={e => setPassword(e.target.value)}
+              placeholder="8 caractères minimum" className={inputCls} />
+            <p className="text-[11px] text-gray-400 mt-1">À communiquer au client pour sa première connexion.</p>
+          </div>
+        </div>
+
+        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-end gap-2">
+          <button type="button" onClick={onClose} disabled={saving}
+            className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50">
+            Annuler
+          </button>
+          <button type="submit" disabled={saving}
+            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+            {saving && <span className="w-3.5 h-3.5 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />}
+            Créer l&apos;utilisateur
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export default function UtilisateursPage() {
   const [users, setUsers]             = useState<User[]>([]);
   const [stats, setStats]             = useState<UserStats | null>(null);
   const [pagination, setPagination]   = useState<Pagination>({ total: 0, page: 1, limit: 10, totalPages: 1 });
   const [loading, setLoading]         = useState(true);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [creating, setCreating]       = useState(false);
 
   // Dropdown menu state
   const [openMenu, setOpenMenu]       = useState<{ user: User; pos: { top: number; left: number } } | null>(null);
@@ -356,7 +436,7 @@ export default function UtilisateursPage() {
             <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors">
               <Download className="w-4 h-4" /> Exporter
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+            <button onClick={() => setCreating(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
               <UserPlus className="w-4 h-4" /> Ajouter un utilisateur
             </button>
           </div>
@@ -622,6 +702,17 @@ export default function UtilisateursPage() {
           </div>
         </div>
       </main>
+
+      {creating && (
+        <CreateUserModal
+          onClose={() => setCreating(false)}
+          onCreated={() => {
+            setCreating(false);
+            fetchUsers();
+            adminApi.getUserStats().then(res => setStats(res.data)).catch(() => {});
+          }}
+        />
+      )}
 
       {/* Fixed-position action dropdown — renders outside table overflow */}
       {openMenu && (

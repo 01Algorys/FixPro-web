@@ -79,6 +79,12 @@ export const adminApi = {
       { method: 'PATCH', body: JSON.stringify({ accountStatus }) }
     ),
 
+  createClient: (body: { name: string; email: string; password: string; phone?: string }) =>
+    request<{ success: boolean; message: string; data: import('@/types').User }>(
+      '/admin/users',
+      { method: 'POST', body: JSON.stringify(body) }
+    ),
+
   createTechnician: (body: { name: string; email: string; password: string; phone?: string; services: number[] }) =>
     request<{ success: boolean; message: string; data: import('@/types').User }>(
       '/admin/technicians',
