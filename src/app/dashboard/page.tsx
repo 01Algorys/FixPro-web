@@ -582,7 +582,7 @@ export default function DashboardPage() {
                         <td className="py-2 px-1.5"><Chip tone={st.tone}>{st.label}</Chip></td>
                         <td className="py-2 px-1.5 text-[#6b7590] whitespace-nowrap">{shortDate(r.createdAt)}</td>
                         <td className="py-2 pr-3 text-right">
-                          <Link href="/dashboard/reservations" className="inline-flex p-1 rounded-md text-[#6b7590] hover:bg-[#f3f6fb]" aria-label={`Voir la demande #${r.id}`}>
+                          <Link href="/dashboard/demandes" className="inline-flex p-1 rounded-md text-[#6b7590] hover:bg-[#f3f6fb]" aria-label={`Voir la demande #${r.id}`}>
                             <MoreHorizontal className="w-4 h-4" />
                           </Link>
                         </td>
