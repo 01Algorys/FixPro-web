@@ -5,6 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import TopBar from '@/components/layout/TopBar';
+import TechnicianDocuments from '@/components/dashboard/TechnicianDocuments';
 import { adminApi } from '@/lib/api';
 import { parseLocation, RESERVATION_STATUS, ACCOUNT_STATUS } from '@/components/dashboard/data';
 import type { TechnicianDetails, TechnicianMission, TrackingEntry, ReservationStatus } from '@/types';
@@ -227,6 +228,12 @@ export default function TechnicianDetailsPage() {
             )}
           </div>
         </div>
+
+        <TechnicianDocuments
+          userId={profile.id}
+          pending={profile.accountStatus === 'PENDING_APPROVAL'}
+          onApproved={() => adminApi.getTechnicianDetails(id).then(res => setData(res.data)).catch(() => {})}
+        />
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">

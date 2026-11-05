@@ -366,3 +366,19 @@ export interface Analytics {
     avgDurationMinutes: number | null;
   };
 }
+
+export interface VerificationDocument {
+  id: number;
+  type: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  rejectionReason: string | null;
+  url: string | null;
+}
+
+export interface VerificationDocuments {
+  required: string[];
+  missing: string[];
+  rejected: string[];
+  complete: boolean;
+  documents: VerificationDocument[];
+}

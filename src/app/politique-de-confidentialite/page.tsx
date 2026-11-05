@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Comment FixPro collecte, utilise et protège vos données personnelles.",
 };
 
-const UPDATED = '3 novembre 2026';
+const UPDATED = '5 novembre 2026';
 const CONTACT_EMAIL = 'fxproo.support@gmail.com';
 
 const sections: { title: string; body: React.ReactNode }[] = [
@@ -29,9 +29,11 @@ const sections: { title: string; body: React.ReactNode }[] = [
         <li><strong>Compte :</strong> nom, adresse e-mail, numéro de téléphone, photo de profil et mot de passe (stocké chiffré, jamais en clair).</li>
         <li><strong>Connexion avec Google :</strong> si vous choisissez « Continuer avec Google », nous recevons de Google votre nom, votre adresse e-mail, votre photo de profil et un identifiant de compte Google. Nous ne recevons jamais votre mot de passe Google.</li>
         <li><strong>Profil technicien :</strong> services proposés, expérience, tarif horaire, description et position de travail.</li>
+        <li><strong>Documents de vérification (techniciens) :</strong> photo recto et verso de la carte d&apos;identité, selfie avec la carte et preuve d&apos;activité (patente, diplôme, attestation ou facture). Ils sont stockés de façon privée et ne sont consultés que par notre équipe, uniquement pour valider le compte. Ils ne sont jamais montrés aux clients.</li>
+        <li><strong>Réalisations (techniciens) :</strong> les photos de travaux que vous ajoutez à votre profil sont visibles publiquement.</li>
         <li><strong>Réservations :</strong> service demandé, date, heure, adresse d&apos;intervention, description du problème et photos éventuelles.</li>
         <li><strong>Localisation :</strong> avec votre autorisation, la position de votre appareil pour proposer des techniciens proches ou pré-remplir l&apos;adresse. Vous pouvez la refuser dans les réglages de votre téléphone.</li>
-        <li><strong>Messages et avis :</strong> les messages échangés avec un technicien ou un client au sujet d&apos;une réservation, ainsi que les notes et avis laissés.</li>
+        <li><strong>Messages et avis :</strong> les messages et photos échangés avec un technicien ou un client au sujet d&apos;une réservation, ainsi que les notes et avis laissés.</li>
         <li><strong>Données techniques :</strong> jeton de notification pour vous envoyer des alertes, et journaux techniques nécessaires au bon fonctionnement du service.</li>
       </ul>
     ),
@@ -43,7 +45,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
         <li>Créer et sécuriser votre compte, et vous connecter (y compris avec Google).</li>
         <li>Vous permettre de réserver un technicien, de suivre vos interventions et d&apos;échanger avec lui.</li>
         <li>Afficher les techniciens disponibles près de chez vous.</li>
-        <li>Valider les comptes techniciens avant leur activation.</li>
+        <li>Vérifier l&apos;identité des techniciens et valider leur compte avant son activation.</li>
         <li>Vous envoyer des notifications liées à vos réservations et messages.</li>
         <li>Assurer la sécurité du service, prévenir la fraude et répondre à vos demandes de support.</li>
       </ul>
@@ -84,7 +86,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
     body: (
       <p>
         Vos données sont conservées tant que votre compte est actif. Lorsque vous supprimez votre compte, vos données
-        personnelles sont supprimées ou anonymisées, sauf celles que nous devons garder pour respecter une obligation
+        personnelles, dont vos documents de vérification et vos photos de réalisations, sont supprimées ou anonymisées, sauf celles que nous devons garder pour respecter une obligation
         légale ou régler un litige.
       </p>
     ),
@@ -94,7 +96,9 @@ const sections: { title: string; body: React.ReactNode }[] = [
     body: (
       <p>
         Les échanges entre l&apos;application et nos serveurs sont chiffrés (HTTPS), les mots de passe sont stockés
-        sous forme chiffrée, et l&apos;accès aux données est limité aux personnes qui en ont besoin.
+        sous forme chiffrée, et l&apos;accès aux données est limité aux personnes qui en ont besoin. Les documents de
+        vérification et les photos de conversation sont stockés de façon privée, avec des liens d&apos;accès temporaires.
+        Les informations cachées des photos, comme la position GPS, sont supprimées à l&apos;envoi.
       </p>
     ),
   },
