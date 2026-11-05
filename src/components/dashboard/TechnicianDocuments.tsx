@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { AlertCircle, BadgeCheck, CheckCircle, FileCheck2, RefreshCw, XCircle } from 'lucide-react';
 import { adminApi } from '@/lib/api';
 import type { VerificationDocuments } from '@/types';
+import DocumentViewer from './DocumentViewer';
 
 const LABELS: Record<string, string> = {
   CIN_FRONT: 'CIN, recto',
@@ -26,6 +27,7 @@ export default function TechnicianDocuments({ userId, pending, onApproved }: { u
   const [refusing, setRefusing] = useState<number | null>(null);
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
+  const [viewing, setViewing] = useState<number | null>(null);
 
   const load = useCallback(() => {
     setError('');
@@ -63,6 +65,9 @@ export default function TechnicianDocuments({ userId, pending, onApproved }: { u
   };
 
   const documents = data?.documents ?? [];
+  const viewable = documents.flatMap(doc => (
+    doc.url ? [{ id: doc.id, url: doc.url, label: LABELS[doc.type] ?? doc.type, badge: BADGE[doc.status] }] : []
+  ));
 
   return (
     <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-4">
@@ -108,10 +113,10 @@ export default function TechnicianDocuments({ userId, pending, onApproved }: { u
             return (
               <div key={doc.id} className="border border-gray-100 rounded-xl overflow-hidden flex flex-col">
                 {doc.url ? (
-                  <a href={doc.url} target="_blank" rel="noreferrer" title="Ouvrir en grand">
+                  <button onClick={() => setViewing(viewable.findIndex(image => image.id === doc.id))} title="Agrandir" className="block w-full cursor-zoom-in">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={doc.url} alt={LABELS[doc.type] ?? doc.type} className="w-full h-36 object-cover bg-gray-100" />
-                  </a>
+                  </button>
                 ) : <div className="h-36 bg-gray-100" />}
                 <div className="p-2.5 space-y-1.5 flex-1">
                   <div className="flex items-center justify-between gap-2">
@@ -148,6 +153,8 @@ export default function TechnicianDocuments({ userId, pending, onApproved }: { u
           })}
         </div>
       )}
+
+      {viewing !== null && <DocumentViewer images={viewable} startIndex={viewing} onClose={() => setViewing(null)} />}
     </section>
   );
 }
