@@ -17,6 +17,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [requestCount, setRequestCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [alertCount, setAlertCount] = useState(0);
   const [toast, setToast] = useState<Notification | null>(null);
@@ -54,6 +55,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     adminApi.getDashboardStats()
       .then(res => setPendingCount(res.data.pendingApprovals))
       .catch(() => {});
+    adminApi.getReservationStats()
+      .then(res => setRequestCount(res.data.byStatus.PENDING))
+      .catch(() => {});
 
     refreshAlerts();
     const timer = setInterval(refreshAlerts, ALERT_POLL_MS);
@@ -79,7 +83,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <ShellContext.Provider value={shell}>
       <div className={`${jakarta.className} min-h-screen bg-[#f5f7fb] text-[#0b1533]`}>
-        <Sidebar pendingCount={pendingCount} notifCount={alertCount} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar pendingCount={pendingCount} requestCount={requestCount} notifCount={alertCount} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="lg:ml-64 min-h-screen flex flex-col min-w-0">
           {children}
         </div>

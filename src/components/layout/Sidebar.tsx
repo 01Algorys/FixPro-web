@@ -8,13 +8,13 @@ import {
   Star, MessageSquareText, Bell, LayoutDashboard, MapPin, BarChart3, Settings, Crown, ArrowRight, X,
 } from 'lucide-react';
 
-type BadgeKey = 'pending' | 'messages' | 'notifications';
+type BadgeKey = 'pending' | 'requests' | 'messages' | 'notifications';
 
 const navItems: { href: string; label: string; icon: React.ElementType; badge?: BadgeKey }[] = [
   { href: '/dashboard',               label: 'Tableau de bord',      icon: LayoutGrid },
   { href: '/dashboard/utilisateurs',  label: 'Utilisateurs',         icon: Users },
   { href: '/dashboard/techniciens',   label: 'Techniciens',          icon: Wrench, badge: 'pending' },
-  { href: '/dashboard/demandes',      label: 'Demandes',             icon: FileText },
+  { href: '/dashboard/demandes',      label: 'Demandes',             icon: FileText, badge: 'requests' },
   { href: '/dashboard/reservations',  label: 'Réservations',         icon: CalendarDays },
   { href: '/dashboard/interventions', label: 'Interventions',        icon: CalendarCheck },
   { href: '/dashboard/paiements',     label: 'Paiements',            icon: CreditCard },
@@ -30,6 +30,7 @@ const navItems: { href: string; label: string; icon: React.ElementType; badge?: 
 
 interface SidebarProps {
   pendingCount?: number;
+  requestCount?: number;
   messageCount?: number;
   notifCount?: number;
   /** Drawer state below the lg breakpoint; the sidebar is always visible above it */
@@ -37,9 +38,9 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-export default function Sidebar({ pendingCount = 0, messageCount = 0, notifCount = 0, open = false, onClose }: SidebarProps) {
+export default function Sidebar({ pendingCount = 0, requestCount = 0, messageCount = 0, notifCount = 0, open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const badges: Record<BadgeKey, number> = { pending: pendingCount, messages: messageCount, notifications: notifCount };
+  const badges: Record<BadgeKey, number> = { pending: pendingCount, requests: requestCount, messages: messageCount, notifications: notifCount };
 
   return (
     <>
