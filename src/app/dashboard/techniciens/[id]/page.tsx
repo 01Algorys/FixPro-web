@@ -11,7 +11,7 @@ import { parseLocation, RESERVATION_STATUS, ACCOUNT_STATUS } from '@/components/
 import type { TechnicianDetails, TechnicianMission, TrackingEntry, ReservationStatus } from '@/types';
 import type { TrackMission } from '@/components/zones/TrackMap';
 import {
-  ArrowLeft, Phone, Mail, Star, Wallet, Briefcase, CheckCircle, MapPin, Navigation, Clock,
+  BadgeCheck, ArrowLeft, Phone, Mail, Star, Wallet, Briefcase, CheckCircle, MapPin, Navigation, Clock,
   AlertCircle, Search, AlertTriangle, CalendarDays, User as UserIcon, Wrench, FileText,
 } from 'lucide-react';
 
@@ -211,6 +211,11 @@ export default function TechnicianDetailsPage() {
                   : profile.accountStatus === 'SUSPENDED' ? 'bg-gray-200 text-gray-700' : 'bg-red-100 text-red-700'
                 }`}>{accountStatus.label}</span>
               )}
+              {worker.isVerified && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                  <BadgeCheck className="w-3.5 h-3.5" /> Vérifié
+                </span>
+              )}
               <span className="text-xs text-gray-400">#USR-{profile.id}</span>
             </div>
             <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-1.5 text-sm text-gray-500">
@@ -231,8 +236,8 @@ export default function TechnicianDetailsPage() {
 
         <TechnicianDocuments
           userId={profile.id}
-          pending={profile.accountStatus === 'PENDING_APPROVAL'}
-          onApproved={() => adminApi.getTechnicianDetails(id).then(res => setData(res.data)).catch(() => {})}
+          verified={worker.isVerified}
+          onVerified={() => adminApi.getTechnicianDetails(id).then(res => setData(res.data)).catch(() => {})}
         />
 
         {/* Stats */}

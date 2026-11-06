@@ -6,7 +6,7 @@ import TopBar from '@/components/layout/TopBar';
 import { adminApi } from '@/lib/api';
 import type { User, Pagination, AccountStatus, Service } from '@/types';
 import {
-  Wrench, CheckCircle, XCircle, Clock, Search, ChevronLeft, ChevronRight,
+  Wrench, CheckCircle, XCircle, Clock, Search, ChevronLeft, ChevronRight, BadgeCheck,
   Eye, Star, RefreshCw, AlertCircle, MoreVertical, Shield,
   PauseCircle, Ban, Trash2, Plus, X,
 } from 'lucide-react';
@@ -399,7 +399,7 @@ export default function TechniciensPage() {
   const [status, setStatus] = useState('ALL');
   const [page, setPage]     = useState(1);
 
-  const [pendingCount, setPendingCount]   = useState(0);
+  const [toReviewCount, setToReviewCount] = useState(0);
   const [approvedCount, setApprovedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
   const [suspendedCount, setSuspendedCount] = useState(0);
@@ -409,7 +409,8 @@ export default function TechniciensPage() {
     try {
       const params: Record<string, string | number> = { page, limit: 10, role: 'WORKER' };
       if (search)           params.search = search;
-      if (status !== 'ALL') params.status = status;
+      if (status === 'TO_REVIEW') params.verification = status;
+      else if (status !== 'ALL')  params.status = status;
       const res = await adminApi.getUsers(params);
       setWorkers(res.data.users);
       setPagination(res.data.pagination);
@@ -421,12 +422,12 @@ export default function TechniciensPage() {
 
   useEffect(() => {
     Promise.all([
-      adminApi.getUsers({ role: 'WORKER', status: 'PENDING_APPROVAL', limit: 1 }),
+      adminApi.getUsers({ role: 'WORKER', verification: 'TO_REVIEW', limit: 1 }),
       adminApi.getUsers({ role: 'WORKER', status: 'APPROVED',         limit: 1 }),
       adminApi.getUsers({ role: 'WORKER', status: 'REJECTED',         limit: 1 }),
       adminApi.getUsers({ role: 'WORKER', status: 'SUSPENDED',        limit: 1 }),
-    ]).then(([p, a, r, s]) => {
-      setPendingCount(p.data.pagination.total);
+    ]).then(([v, a, r, s]) => {
+      setToReviewCount(v.data.pagination.total);
       setApprovedCount(a.data.pagination.total);
       setRejectedCount(r.data.pagination.total);
       setSuspendedCount(s.data.pagination.total);
@@ -518,7 +519,7 @@ export default function TechniciensPage() {
         <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Techniciens</h1>
-            <p className="text-gray-500 text-sm mt-1">Gérez les comptes techniciens et les demandes d&apos;approbation</p>
+            <p className="text-gray-500 text-sm mt-1">Gérez les comptes techniciens et la vérification de leurs documents</p>
           </div>
           <button
             onClick={openCreateModal}
@@ -544,11 +545,11 @@ export default function TechniciensPage() {
                 <Clock className="w-5 h-5 text-orange-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-500">En attente</p>
-                <p className="text-2xl font-bold text-gray-900">{pendingCount}</p>
+                <p className="text-xs text-gray-500">Documents à vérifier</p>
+                <p className="text-2xl font-bold text-gray-900">{toReviewCount}</p>
               </div>
             </div>
-            {pendingCount > 0 && (
+            {toReviewCount > 0 && (
               <p className="text-xs text-orange-600 mt-2 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" /> Action requise
               </p>
@@ -601,6 +602,7 @@ export default function TechniciensPage() {
             <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}
               className="border border-gray-200 rounded-lg text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
               <option value="ALL">Tous les statuts</option>
+              <option value="TO_REVIEW">Documents à vérifier</option>
               <option value="PENDING_APPROVAL">En attente d&apos;approbation</option>
               <option value="APPROVED">Approuvés</option>
               <option value="REJECTED">Refusés</option>
@@ -644,7 +646,10 @@ export default function TechniciensPage() {
                       <div className="flex items-center gap-3">
                         <Avatar user={w} />
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">{w.name}</p>
+                          <p className="text-sm font-semibold text-gray-900 flex items-center gap-1">
+                            {w.name}
+                            {w.worker?.isVerified && <BadgeCheck className="w-4 h-4 text-blue-600" aria-label="Vérifié" />}
+                          </p>
                           <p className="text-xs text-gray-400">#USR-{w.id}</p>
                         </div>
                       </div>
