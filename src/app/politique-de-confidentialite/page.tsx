@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   description: "Comment FixPro collecte, utilise et protège vos données personnelles.",
 };
 
-const UPDATED = '5 novembre 2026';
-const CONTACT_EMAIL = 'fxproo.support@gmail.com';
+const UPDATED = '6 novembre 2026';
+const CONTACT_EMAIL = 'fixproo.support@gmail.com';
 
 const sections: { title: string; body: React.ReactNode }[] = [
   {
@@ -28,8 +28,9 @@ const sections: { title: string; body: React.ReactNode }[] = [
       <ul>
         <li><strong>Compte :</strong> nom, adresse e-mail, numéro de téléphone, photo de profil et mot de passe (stocké chiffré, jamais en clair).</li>
         <li><strong>Connexion avec Google :</strong> si vous choisissez « Continuer avec Google », nous recevons de Google votre nom, votre adresse e-mail, votre photo de profil et un identifiant de compte Google. Nous ne recevons jamais votre mot de passe Google.</li>
+        <li><strong>Connexion avec Apple :</strong> si vous choisissez « Continuer avec Apple », nous recevons d&apos;Apple un identifiant de compte et, si vous les partagez, votre nom et votre adresse e-mail (qui peut être une adresse masquée). Nous ne recevons jamais votre mot de passe Apple.</li>
         <li><strong>Profil technicien :</strong> services proposés, expérience, tarif horaire, description et position de travail.</li>
-        <li><strong>Documents de vérification (techniciens) :</strong> photo recto et verso de la carte d&apos;identité, selfie avec la carte et preuve d&apos;activité (patente, diplôme, attestation ou facture). Ils sont stockés de façon privée et ne sont consultés que par notre équipe, uniquement pour valider le compte. Ils ne sont jamais montrés aux clients.</li>
+        <li><strong>Documents de vérification (techniciens, facultatifs) :</strong> photo recto et verso de la carte d&apos;identité, selfie avec la carte et preuve d&apos;activité (patente, diplôme, attestation ou facture). Ils sont stockés de façon privée et ne sont consultés que par notre équipe, uniquement pour attribuer le badge vérifié. Ils ne sont jamais montrés aux clients.</li>
         <li><strong>Réalisations (techniciens) :</strong> les photos de travaux que vous ajoutez à votre profil sont visibles publiquement.</li>
         <li><strong>Réservations :</strong> service demandé, date, heure, adresse d&apos;intervention, description du problème et photos éventuelles.</li>
         <li><strong>Localisation :</strong> avec votre autorisation, la position de votre appareil pour proposer des techniciens proches ou pré-remplir l&apos;adresse. Vous pouvez la refuser dans les réglages de votre téléphone.</li>
@@ -42,10 +43,10 @@ const sections: { title: string; body: React.ReactNode }[] = [
     title: '3. Pourquoi nous les utilisons',
     body: (
       <ul>
-        <li>Créer et sécuriser votre compte, et vous connecter (y compris avec Google).</li>
+        <li>Créer et sécuriser votre compte, et vous connecter (y compris avec Google ou Apple).</li>
         <li>Vous permettre de réserver un technicien, de suivre vos interventions et d&apos;échanger avec lui.</li>
         <li>Afficher les techniciens disponibles près de chez vous.</li>
-        <li>Vérifier l&apos;identité des techniciens et valider leur compte avant son activation.</li>
+        <li>Vérifier l&apos;identité des techniciens qui envoient leurs documents et leur attribuer le badge vérifié, qui les fait passer en priorité dans les recherches.</li>
         <li>Vous envoyer des notifications liées à vos réservations et messages.</li>
         <li>Assurer la sécurité du service, prévenir la fraude et répondre à vos demandes de support.</li>
       </ul>
@@ -76,7 +77,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
     body: (
       <ul>
         <li><strong>Entre client et technicien :</strong> une fois une réservation acceptée, le client et le technicien voient le nom, le numéro de téléphone et l&apos;adresse d&apos;intervention nécessaires pour réaliser le service.</li>
-        <li><strong>Prestataires techniques :</strong> hébergement de nos serveurs et de notre base de données, stockage des photos, envoi des notifications et connexion Google. Ils traitent les données uniquement pour notre compte.</li>
+        <li><strong>Prestataires techniques :</strong> hébergement de nos serveurs et de notre base de données, stockage des photos, envoi des notifications et connexion Google ou Apple. Ils traitent les données uniquement pour notre compte.</li>
         <li><strong>Obligations légales :</strong> si la loi ou une autorité compétente l&apos;exige.</li>
       </ul>
     ),
@@ -112,7 +113,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
         </p>
         <ul>
           <li>Vous pouvez modifier vos informations depuis votre profil dans l&apos;application.</li>
-          <li>Vous pouvez supprimer votre compte à tout moment depuis l&apos;application (Profil → Supprimer mon compte).</li>
+          <li>Vous pouvez supprimer votre compte à tout moment depuis l&apos;application (Profil → Supprimer le compte).</li>
           <li>Pour toute autre demande, écrivez à <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</li>
         </ul>
         <p>

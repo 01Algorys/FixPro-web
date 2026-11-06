@@ -809,7 +809,7 @@ export default function HomePage() {
               </span>
               <p className="mt-4 font-extrabold">{t.faq.otherTitle}</p>
               <p className="mt-1 text-[14px] text-[#4b5672]">{t.faq.otherDesc}</p>
-              <a href="mailto:contact@fixpro.tn" className="mt-4 inline-flex items-center gap-2 text-[14px] font-bold text-[#1d6ff2] hover:gap-3 transition-all">
+              <a href="mailto:fixproo.support@gmail.com" className="mt-4 inline-flex items-center gap-2 text-[14px] font-bold text-[#1d6ff2] hover:gap-3 transition-all">
                 {t.faq.contact} <Forward />
               </a>
             </div>
@@ -900,7 +900,7 @@ export default function HomePage() {
             <h4 className="text-white font-semibold text-sm">{t.footer.contact}</h4>
             <ul className="mt-4 space-y-3 text-sm text-gray-400">
               <li className="flex items-center gap-2"><Phone className="w-4 h-4 shrink-0" /> <span dir="ltr">+216 50 214 803</span></li>
-              <li className="flex items-center gap-2"><Mail className="w-4 h-4 shrink-0" /> fxproo.support@gmail.com</li>
+              <li className="flex items-center gap-2"><Mail className="w-4 h-4 shrink-0" /> fixproo.support@gmail.com</li>
               <li className="flex items-center gap-2"><MapPin className="w-4 h-4 shrink-0" /> {t.footer.address}</li>
             </ul>
             <form className="mt-5 flex items-center gap-2" onSubmit={e => e.preventDefault()}>
