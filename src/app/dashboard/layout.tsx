@@ -53,7 +53,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     // Load sidebar badge asynchronously
     adminApi.getDashboardStats()
-      .then(res => setPendingCount(res.data.pendingApprovals))
+      .then(res => setPendingCount(res.data.pendingApprovals + (res.data.documentsToReview ?? 0)))
       .catch(() => {});
     adminApi.getReservationStats()
       .then(res => setRequestCount(res.data.byStatus.PENDING))

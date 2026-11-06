@@ -19,9 +19,10 @@ const BADGE: Record<string, { label: string; cls: string }> = {
   REJECTED: { label: 'Refusé', cls: 'bg-red-100 text-red-700' },
 };
 
-// Identity documents sent at sign-up. Files are private: links last 10 minutes,
-// so they are fetched when this card opens and on "Actualiser".
-export default function TechnicianDocuments({ userId, pending, onApproved }: { userId: number; pending: boolean; onApproved: () => void }) {
+// Identity documents sent from the technician's profile to earn the verified
+// badge. Files are private: links last 10 minutes, so they are fetched when this
+// card opens and on "Actualiser".
+export default function TechnicianDocuments({ userId, verified, onVerified }: { userId: number; verified: boolean; onVerified: () => void }) {
   const [data, setData] = useState<VerificationDocuments | null>(null);
   const [error, setError] = useState('');
   const [refusing, setRefusing] = useState<number | null>(null);
@@ -52,14 +53,14 @@ export default function TechnicianDocuments({ userId, pending, onApproved }: { u
     setBusy(false);
   };
 
-  const approve = async () => {
+  const verify = async () => {
     setBusy(true);
     try {
       await adminApi.approveUser(userId);
-      onApproved();
+      onVerified();
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Échec de l'approbation");
+      setError(err instanceof Error ? err.message : 'Échec de la vérification');
     }
     setBusy(false);
   };
@@ -74,7 +75,7 @@ export default function TechnicianDocuments({ userId, pending, onApproved }: { u
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
         <div>
           <h2 className="font-semibold text-gray-900 flex items-center gap-1.5"><FileCheck2 className="w-4 h-4" /> Documents de vérification</h2>
-          {data && !data.complete && (
+          {data && !data.complete && !verified && documents.length > 0 && (
             <p className="text-xs text-amber-700 mt-0.5">
               {data.missing.length > 0 ? `Manquants : ${data.missing.map(t => LABELS[t] ?? t).join(', ')}` : 'En attente du nouvel envoi par le technicien'}
             </p>
@@ -84,13 +85,17 @@ export default function TechnicianDocuments({ userId, pending, onApproved }: { u
           <button onClick={load} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
             <RefreshCw className="w-4 h-4" /> Actualiser
           </button>
-          {pending && (
+          {verified ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-green-100 text-green-700 rounded-lg">
+              <BadgeCheck className="w-4 h-4" /> Technicien vérifié
+            </span>
+          ) : (
             <button
-              onClick={approve}
+              onClick={verify}
               disabled={busy || !data?.complete}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
             >
-              <BadgeCheck className="w-4 h-4" /> Approuver le compte
+              <BadgeCheck className="w-4 h-4" /> Vérifier le technicien
             </button>
           )}
         </div>
@@ -104,7 +109,7 @@ export default function TechnicianDocuments({ userId, pending, onApproved }: { u
 
       {data && documents.length === 0 ? (
         <p className="text-sm text-gray-500">
-          {pending ? "Aucun document reçu pour l'instant." : 'Aucun document : ce compte a été approuvé sans documents.'}
+          {verified ? 'Aucun document : ce technicien a été vérifié sans documents.' : "Aucun document reçu pour l'instant. Le technicien peut les envoyer depuis son profil."}
         </p>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -126,7 +131,7 @@ export default function TechnicianDocuments({ userId, pending, onApproved }: { u
                   {doc.rejectionReason && doc.status === 'REJECTED' && (
                     <p className="text-xs text-red-700">{doc.rejectionReason}</p>
                   )}
-                  {pending && doc.status === 'PENDING' && (refusing === doc.id ? (
+                  {!verified && doc.status === 'PENDING' && (refusing === doc.id ? (
                     <div className="space-y-1.5">
                       <input
                         autoFocus

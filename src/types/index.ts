@@ -311,6 +311,7 @@ export interface DashboardStats {
   totalUsers: number;
   totalWorkers: number;
   pendingApprovals: number;
+  documentsToReview?: number;
   totalReservations: number;
   completedReservations: number;
   newUsersThisMonth: number;
