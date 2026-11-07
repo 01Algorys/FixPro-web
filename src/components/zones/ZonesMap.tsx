@@ -4,9 +4,10 @@ import { useEffect, useMemo } from 'react';
 import L from 'leaflet';
 import 'leaflet.heat';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
+import BaseMap, { type BaseLayer } from './BaseMap';
 
-export type BaseLayer = 'plan' | 'satellite' | 'sombre';
+export type { BaseLayer };
 
 export interface MapPoint {
   id: number;
@@ -25,24 +26,6 @@ export interface MapTechnician {
   sub: string;
   active: boolean;
 }
-
-const TILES: Record<BaseLayer, { url: string; attribution: string; maxZoom: number }> = {
-  plan: {
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; OpenStreetMap',
-    maxZoom: 19,
-  },
-  satellite: {
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Imagery &copy; Esri',
-    maxZoom: 18,
-  },
-  sombre: {
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; OpenStreetMap &copy; CARTO',
-    maxZoom: 19,
-  },
-};
 
 const TUNISIA_CENTER: [number, number] = [35.4, 9.6];
 
@@ -106,7 +89,6 @@ interface ZonesMapProps {
 }
 
 export default function ZonesMap({ base, showHeat, showPoints, showTechnicians, points, technicians }: ZonesMapProps) {
-  const tile = TILES[base];
   const heatCoords = useMemo(() => points.map(p => [p.lat, p.lng] as [number, number]), [points]);
   const allCoords = useMemo(
     () => [...heatCoords, ...(showTechnicians ? technicians.map(t => [t.lat, t.lng] as [number, number]) : [])],
@@ -115,7 +97,7 @@ export default function ZonesMap({ base, showHeat, showPoints, showTechnicians, 
 
   return (
     <MapContainer center={TUNISIA_CENTER} zoom={7} scrollWheelZoom className="absolute inset-0 z-0">
-      <TileLayer key={base} url={tile.url} attribution={tile.attribution} maxZoom={tile.maxZoom} />
+      <BaseMap base={base} />
       <AutoResize />
       <FitBounds coords={allCoords} />
 
