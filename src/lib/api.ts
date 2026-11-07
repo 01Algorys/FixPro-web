@@ -46,6 +46,9 @@ export const authApi = {
 
 // Admin — Users
 export const adminApi = {
+  getMapsConfig: () =>
+    request<{ success: boolean; data: { googleMapsApiKey: string | null } }>('/admin/maps-config'),
+
   getUserStats: () =>
     request<{ success: boolean; data: import('@/types').UserStats }>('/admin/users/stats'),
 

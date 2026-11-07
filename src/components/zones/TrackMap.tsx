@@ -3,7 +3,8 @@
 import { Fragment, useEffect, useMemo } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, CircleMarker, Polyline, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, CircleMarker, Polyline, Tooltip, useMap } from 'react-leaflet';
+import BaseMap from './BaseMap';
 
 export interface TrackMission {
   id: number;
@@ -56,7 +57,7 @@ export default function TrackMap({ missions, selectedId, onSelect }: TrackMapPro
 
   return (
     <MapContainer center={TUNISIA_CENTER} zoom={7} scrollWheelZoom className="absolute inset-0 z-0">
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap" maxZoom={19} />
+      <BaseMap />
       <AutoResize />
       <FitTo coords={focus} />
 
