@@ -6,7 +6,7 @@ import TopBar from '@/components/layout/TopBar';
 import { adminApi } from '@/lib/api';
 import type { User, Pagination, AccountStatus, Service } from '@/types';
 import {
-  Wrench, CheckCircle, XCircle, Clock, Search, ChevronLeft, ChevronRight, BadgeCheck,
+  Wrench, CheckCircle, XCircle, Clock, Search, ChevronLeft, ChevronRight, BadgeCheck, FileCheck2,
   Eye, Star, RefreshCw, AlertCircle, MoreVertical, Shield,
   PauseCircle, Ban, Trash2, Plus, X,
 } from 'lucide-react';
@@ -20,7 +20,12 @@ const STATUS_LABEL: Record<AccountStatus, string> = {
 };
 
 // ── Badges ─────────────────────────────────────────────────────────────────
-function ApprovalBadge({ status }: { status: string }) {
+function ApprovalBadge({ status, verified }: { status: string; verified?: boolean }) {
+  if (status === 'APPROVED' && verified) return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+      <BadgeCheck className="w-3 h-3" /> Vérifié
+    </span>
+  );
   if (status === 'APPROVED') return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
       <CheckCircle className="w-3 h-3" /> Approuvé
@@ -399,7 +404,9 @@ export default function TechniciensPage() {
   const [status, setStatus] = useState('ALL');
   const [page, setPage]     = useState(1);
 
+  const [pendingCount, setPendingCount]   = useState(0);
   const [toReviewCount, setToReviewCount] = useState(0);
+  const [verifiedCount, setVerifiedCount] = useState(0);
   const [approvedCount, setApprovedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
   const [suspendedCount, setSuspendedCount] = useState(0);
@@ -409,7 +416,7 @@ export default function TechniciensPage() {
     try {
       const params: Record<string, string | number> = { page, limit: 10, role: 'WORKER' };
       if (search)           params.search = search;
-      if (status === 'TO_REVIEW') params.verification = status;
+      if (status === 'TO_REVIEW' || status === 'VERIFIED') params.verification = status;
       else if (status !== 'ALL')  params.status = status;
       const res = await adminApi.getUsers(params);
       setWorkers(res.data.users);
@@ -422,13 +429,17 @@ export default function TechniciensPage() {
 
   useEffect(() => {
     Promise.all([
+      adminApi.getUsers({ role: 'WORKER', status: 'PENDING_APPROVAL', limit: 1 }),
       adminApi.getUsers({ role: 'WORKER', verification: 'TO_REVIEW', limit: 1 }),
       adminApi.getUsers({ role: 'WORKER', status: 'APPROVED',         limit: 1 }),
+      adminApi.getUsers({ role: 'WORKER', verification: 'VERIFIED',  limit: 1 }),
       adminApi.getUsers({ role: 'WORKER', status: 'REJECTED',         limit: 1 }),
       adminApi.getUsers({ role: 'WORKER', status: 'SUSPENDED',        limit: 1 }),
-    ]).then(([v, a, r, s]) => {
-      setToReviewCount(v.data.pagination.total);
+    ]).then(([p, d, a, v, r, s]) => {
+      setPendingCount(p.data.pagination.total);
+      setToReviewCount(d.data.pagination.total);
       setApprovedCount(a.data.pagination.total);
+      setVerifiedCount(v.data.pagination.total);
       setRejectedCount(r.data.pagination.total);
       setSuspendedCount(s.data.pagination.total);
     }).catch(() => {});
@@ -519,7 +530,7 @@ export default function TechniciensPage() {
         <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Techniciens</h1>
-            <p className="text-gray-500 text-sm mt-1">Gérez les comptes techniciens et la vérification de leurs documents</p>
+            <p className="text-gray-500 text-sm mt-1">Gérez l&apos;approbation des comptes techniciens et la vérification de leurs documents</p>
           </div>
           <button
             onClick={openCreateModal}
@@ -538,11 +549,27 @@ export default function TechniciensPage() {
         )}
 
         {/* Summary cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
           <div className="bg-white rounded-xl shadow-sm border border-orange-100 p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
                 <Clock className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">En attente</p>
+                <p className="text-2xl font-bold text-gray-900">{pendingCount}</p>
+              </div>
+            </div>
+            {pendingCount > 0 && (
+              <p className="text-xs text-orange-600 mt-2 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> Action requise
+              </p>
+            )}
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-amber-100 p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                <FileCheck2 className="w-5 h-5 text-amber-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Documents à vérifier</p>
@@ -550,7 +577,7 @@ export default function TechniciensPage() {
               </div>
             </div>
             {toReviewCount > 0 && (
-              <p className="text-xs text-orange-600 mt-2 flex items-center gap-1">
+              <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" /> Action requise
               </p>
             )}
@@ -563,6 +590,17 @@ export default function TechniciensPage() {
               <div>
                 <p className="text-xs text-gray-500">Approuvés</p>
                 <p className="text-2xl font-bold text-gray-900">{approvedCount}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-blue-100 p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <BadgeCheck className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Vérifiés</p>
+                <p className="text-2xl font-bold text-gray-900">{verifiedCount}</p>
               </div>
             </div>
           </div>
@@ -605,6 +643,7 @@ export default function TechniciensPage() {
               <option value="TO_REVIEW">Documents à vérifier</option>
               <option value="PENDING_APPROVAL">En attente d&apos;approbation</option>
               <option value="APPROVED">Approuvés</option>
+              <option value="VERIFIED">Vérifiés</option>
               <option value="REJECTED">Refusés</option>
               <option value="SUSPENDED">Suspendus (impayés)</option>
               <option value="BANNED">Bannis</option>
@@ -646,10 +685,7 @@ export default function TechniciensPage() {
                       <div className="flex items-center gap-3">
                         <Avatar user={w} />
                         <div>
-                          <p className="text-sm font-semibold text-gray-900 flex items-center gap-1">
-                            {w.name}
-                            {w.worker?.isVerified && <BadgeCheck className="w-4 h-4 text-blue-600" aria-label="Vérifié" />}
-                          </p>
+                          <p className="text-sm font-semibold text-gray-900">{w.name}</p>
                           <p className="text-xs text-gray-400">#USR-{w.id}</p>
                         </div>
                       </div>
@@ -681,7 +717,7 @@ export default function TechniciensPage() {
                         </span>
                       ) : (
                         <div className="flex flex-col gap-1.5">
-                          <ApprovalBadge status={w.accountStatus} />
+                          <ApprovalBadge status={w.accountStatus} verified={w.worker?.isVerified} />
                           {w.accountStatus === 'PENDING_APPROVAL' && (
                             <div className="flex items-center gap-1">
                               <button
