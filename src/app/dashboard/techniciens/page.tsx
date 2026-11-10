@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import TopBar from '@/components/layout/TopBar';
+import { useAccess } from '@/components/layout/shell';
 import { adminApi } from '@/lib/api';
 import type { User, Pagination, AccountStatus, Service } from '@/types';
 import {
@@ -387,6 +388,9 @@ function CreateTechnicianModal({ allServices, loadingServices, onCreated, onClos
 
 // ── Main page ──────────────────────────────────────────────────────────────
 export default function TechniciensPage() {
+  const { can } = useAccess();
+  // Suspending, approving or deleting a technician: Techniciens or Utilisateurs in edit
+  const canChangeStatus = can('technicians', 'edit') || can('users', 'edit');
   const [workers, setWorkers]             = useState<User[]>([]);
   const [pagination, setPagination]       = useState<Pagination>({ total: 0, page: 1, limit: 10, totalPages: 1 });
   const [loading, setLoading]             = useState(true);
@@ -532,12 +536,14 @@ export default function TechniciensPage() {
             <h1 className="text-2xl font-bold text-gray-900">Techniciens</h1>
             <p className="text-gray-500 text-sm mt-1">Gérez l&apos;approbation des comptes techniciens et la vérification de leurs documents</p>
           </div>
-          <button
-            onClick={openCreateModal}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" /> Ajouter un technicien
-          </button>
+          {can('technicians', 'edit') && (
+            <button
+              onClick={openCreateModal}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Ajouter un technicien
+            </button>
+          )}
         </div>
 
         {pageError && (
@@ -718,7 +724,7 @@ export default function TechniciensPage() {
                       ) : (
                         <div className="flex flex-col gap-1.5">
                           <ApprovalBadge status={w.accountStatus} verified={w.worker?.isVerified} />
-                          {w.accountStatus === 'PENDING_APPROVAL' && (
+                          {w.accountStatus === 'PENDING_APPROVAL' && canChangeStatus && (
                             <div className="flex items-center gap-1">
                               <button
                                 onClick={() => handleStatusChange(w.id, 'APPROVED')}
@@ -748,14 +754,14 @@ export default function TechniciensPage() {
                           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                           <Eye className="w-4 h-4" />
                         </Link>
-                        <button
+                        {can('technicians', 'edit') && <button
                           onClick={() => openServicesModal(w)}
                           title="Modifier les services"
                           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         >
                           <Wrench className="w-4 h-4" />
-                        </button>
-                        <button
+                        </button>}
+                        {canChangeStatus && <button
                           onClick={e => toggleMenu(e, w)}
                           className={`p-1.5 rounded-lg transition-colors ${
                             openMenu?.user.id === w.id
@@ -764,7 +770,7 @@ export default function TechniciensPage() {
                           }`}
                         >
                           <MoreVertical className="w-4 h-4" />
-                        </button>
+                        </button>}
                       </div>
                     </td>
                   </tr>

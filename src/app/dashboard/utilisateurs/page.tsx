@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import TopBar from '@/components/layout/TopBar';
+import { useAccess } from '@/components/layout/shell';
 import { adminApi } from '@/lib/api';
 import type { User, UserStats, Pagination, AccountStatus } from '@/types';
 import {
@@ -346,6 +347,9 @@ function CreateUserModal({ onCreated, onClose }: { onCreated: () => void; onClos
 }
 
 export default function UtilisateursPage() {
+  const { can } = useAccess();
+  // Read-only admins don't get the actions; the API refuses them anyway
+  const canEditUser = (u: User) => can('users', 'edit') || (u.role === 'WORKER' && can('technicians', 'edit'));
   const [users, setUsers]             = useState<User[]>([]);
   const [stats, setStats]             = useState<UserStats | null>(null);
   const [pagination, setPagination]   = useState<Pagination>({ total: 0, page: 1, limit: 10, totalPages: 1 });
@@ -436,9 +440,11 @@ export default function UtilisateursPage() {
             <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors">
               <Download className="w-4 h-4" /> Exporter
             </button>
-            <button onClick={() => setCreating(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-              <UserPlus className="w-4 h-4" /> Ajouter un utilisateur
-            </button>
+            {can('users', 'edit') && (
+              <button onClick={() => setCreating(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                <UserPlus className="w-4 h-4" /> Ajouter un utilisateur
+              </button>
+            )}
           </div>
         </div>
 
@@ -592,7 +598,7 @@ export default function UtilisateursPage() {
                       {user.role === 'WORKER' ? (
                         <div className="flex flex-col gap-1.5">
                           <ApprovalBadge status={user.accountStatus} />
-                          {user.accountStatus === 'PENDING_APPROVAL' && (
+                          {user.accountStatus === 'PENDING_APPROVAL' && canEditUser(user) && (
                             <div className="flex items-center gap-1">
                               <button
                                 disabled={actionLoading === user.id}
@@ -634,7 +640,7 @@ export default function UtilisateursPage() {
                         <button className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button
+                        {canEditUser(user) && <button
                           onClick={e => toggleMenu(e, user)}
                           className={`p-1.5 rounded-lg transition-colors ${
                             openMenu?.user.id === user.id
@@ -643,7 +649,7 @@ export default function UtilisateursPage() {
                           }`}
                         >
                           <MoreVertical className="w-4 h-4" />
-                        </button>
+                        </button>}
                       </div>
                     </td>
                   </tr>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import TopBar from '@/components/layout/TopBar';
+import { useAccess } from '@/components/layout/shell';
 import { adminApi } from '@/lib/api';
 import type {
   TechnicianSubscription, SubscriptionStats, SubscriptionLog, SubscriptionAction, SubscriptionState, Pagination,
@@ -281,6 +282,7 @@ function HistoryModal({ tech, onClose }: { tech: TechnicianSubscription; onClose
 
 // ── Page ───────────────────────────────────────────────────────────────────
 export default function AbonnementsPage() {
+  const canEdit = useAccess().can('subscriptions', 'edit');
   const [stats, setStats]           = useState<SubscriptionStats | null>(null);
   const [rows, setRows]             = useState<TechnicianSubscription[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ total: 0, page: 1, limit: 15, totalPages: 1 });
@@ -451,6 +453,7 @@ export default function AbonnementsPage() {
                       <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{t.lastChangeAt ? dateTime(t.lastChangeAt) : '—'}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
+                          {canEdit && <>
                           <button onClick={() => setAction({ tech: t, mode: 'EXTEND' })}
                             className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 rounded-md">
                             <Plus className="w-3.5 h-3.5" /> Mois
@@ -464,6 +467,7 @@ export default function AbonnementsPage() {
                             <button onClick={() => setAction({ tech: t, mode: 'SUSPEND' })} title="Suspendre"
                               className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg"><PauseCircle className="w-4 h-4" /></button>
                           )}
+                          </>}
                           <button onClick={() => setHistoryOf(t)} title="Historique"
                             className="p-1.5 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg"><History className="w-4 h-4" /></button>
                         </div>

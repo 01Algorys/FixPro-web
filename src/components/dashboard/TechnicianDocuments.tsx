@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AlertCircle, BadgeCheck, CheckCircle, FileCheck2, RefreshCw, XCircle } from 'lucide-react';
 import { adminApi } from '@/lib/api';
+import { useAccess } from '@/components/layout/shell';
 import type { VerificationDocuments } from '@/types';
 import DocumentViewer from './DocumentViewer';
 
@@ -23,6 +24,7 @@ const BADGE: Record<string, { label: string; cls: string }> = {
 // badge. Files are private: links last 10 minutes, so they are fetched when this
 // card opens and on "Actualiser".
 export default function TechnicianDocuments({ userId, verified, onVerified }: { userId: number; verified: boolean; onVerified: () => void }) {
+  const canEdit = useAccess().can('technicians', 'edit');
   const [data, setData] = useState<VerificationDocuments | null>(null);
   const [error, setError] = useState('');
   const [refusing, setRefusing] = useState<number | null>(null);
@@ -89,7 +91,7 @@ export default function TechnicianDocuments({ userId, verified, onVerified }: { 
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-green-100 text-green-700 rounded-lg">
               <BadgeCheck className="w-4 h-4" /> Technicien vérifié
             </span>
-          ) : (
+          ) : canEdit && (
             <button
               onClick={verify}
               disabled={busy || !data?.complete}
@@ -131,7 +133,7 @@ export default function TechnicianDocuments({ userId, verified, onVerified }: { 
                   {doc.rejectionReason && doc.status === 'REJECTED' && (
                     <p className="text-xs text-red-700">{doc.rejectionReason}</p>
                   )}
-                  {!verified && doc.status === 'PENDING' && (refusing === doc.id ? (
+                  {canEdit && !verified && doc.status === 'PENDING' && (refusing === doc.id ? (
                     <div className="space-y-1.5">
                       <input
                         autoFocus
