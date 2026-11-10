@@ -31,9 +31,28 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Erreur serveur');
+  // A deactivated (or banned) admin account is signed out at once
+  if (res.status === 403 && SIGNED_OUT_CODES.includes(data.code)) {
+    clearToken();
+    window.location.href = '/login';
+    throw new Error(data.message || 'Compte désactivé');
+  }
+  if (!res.ok) throw new ApiError(data.message || 'Erreur serveur', res.status, data.code);
   return data;
 }
+
+const SIGNED_OUT_CODES = ['ACCOUNT_DISABLED', 'ACCOUNT_SUSPENDED', 'ACCOUNT_BANNED'];
+
+export class ApiError extends Error {
+  constructor(message: string, public status: number, public code?: string) {
+    super(message);
+  }
+}
+
+const qs = (params: Record<string, string | number | boolean | undefined>) =>
+  new URLSearchParams(
+    Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== '').map(([k, v]) => [k, String(v)]))
+  ).toString();
 
 // Auth
 export const authApi = {
@@ -46,6 +65,55 @@ export const authApi = {
 
 // Admin — Users
 export const adminApi = {
+  // The signed-in admin and the sections they may open
+  getMe: () =>
+    request<{ success: boolean; data: import('@/types').AdminMe }>('/admin/me'),
+
+  // Admin accounts (full admins only)
+  getAdmins: () =>
+    request<{ success: boolean; data: import('@/types').AdminAccount[] }>('/admin/admins'),
+
+  createAdmin: (body: { name: string; email: string; password: string; phone?: string } & import('@/types').AdminAccessInput) =>
+    request<{ success: boolean; message: string; data: import('@/types').AdminAccount }>(
+      '/admin/admins', { method: 'POST', body: JSON.stringify(body) }
+    ),
+
+  updateAdmin: (id: number, body: { name?: string } & import('@/types').AdminAccessInput) =>
+    request<{ success: boolean; message: string; data: import('@/types').AdminAccount }>(
+      `/admin/admins/${id}`, { method: 'PATCH', body: JSON.stringify(body) }
+    ),
+
+  setAdminActive: (id: number, active: boolean) =>
+    request<{ success: boolean; message: string; data: import('@/types').AdminAccount }>(
+      `/admin/admins/${id}/status`, { method: 'PATCH', body: JSON.stringify({ active }) }
+    ),
+
+  resetAdminPassword: (id: number, password: string) =>
+    request<{ success: boolean; message: string }>(
+      `/admin/admins/${id}/password`, { method: 'PATCH', body: JSON.stringify({ password }) }
+    ),
+
+  deleteAdmin: (id: number) =>
+    request<{ success: boolean; message: string }>(`/admin/admins/${id}`, { method: 'DELETE' }),
+
+  /** Own password, through the app's own endpoint */
+  changeOwnPassword: (currentPassword: string, newPassword: string) =>
+    request<{ success: boolean }>('/auth/change-password', { method: 'PUT', body: JSON.stringify({ currentPassword, newPassword }) }),
+
+  // Conversations between clients and technicians (read-only)
+  getConversationStats: () =>
+    request<{ success: boolean; data: import('@/types').ConversationStats }>('/admin/messages/stats'),
+
+  getConversations: (params: { search?: string; status?: string; photos?: boolean; from?: string; to?: string; page?: number; limit?: number }) =>
+    request<{ success: boolean; data: { conversations: import('@/types').Conversation[]; pagination: import('@/types').Pagination } }>(
+      `/admin/messages?${qs({ ...params, photos: params.photos ? 1 : undefined })}`
+    ),
+
+  getConversation: (reservationId: number, before?: number) =>
+    request<{ success: boolean; data: import('@/types').ConversationThread }>(
+      `/admin/messages/${reservationId}${before ? `?before=${before}` : ''}`
+    ),
+
   getMapsConfig: () =>
     request<{ success: boolean; data: { googleMapsApiKey: string | null } }>('/admin/maps-config'),
 

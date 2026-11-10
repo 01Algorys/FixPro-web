@@ -383,3 +383,113 @@ export interface VerificationDocuments {
   complete: boolean;
   documents: VerificationDocument[];
 }
+
+// ─── Admin accounts & access ────────────────────────────────────────────────
+
+export type AdminSection =
+  | 'dashboard' | 'users' | 'technicians' | 'reservations' | 'payments' | 'subscriptions'
+  | 'reviews' | 'messages' | 'categories' | 'zones' | 'reports';
+export type AccessLevel = 'view' | 'edit';
+export type AdminPermissions = Partial<Record<AdminSection, AccessLevel>>;
+
+export interface AdminSectionDef {
+  key: AdminSection;
+  label: string;
+  levels: AccessLevel[];
+}
+
+/** The signed-in admin; permissions is null for a full admin */
+export interface AdminMe {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+  full: boolean;
+  permissions: AdminPermissions | null;
+  sections: AdminSectionDef[];
+}
+
+export interface AdminAccount {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+  active: boolean;
+  createdAt: string;
+  full: boolean;
+  permissions: AdminPermissions | null;
+  createdBy: { id: number; name: string | null } | null;
+}
+
+export type AdminAccessInput =
+  | { access: 'FULL' }
+  | { access: 'LIMITED'; permissions: AdminPermissions };
+
+// ─── Conversations (read-only) ──────────────────────────────────────────────
+
+export interface ChatPerson {
+  id: number;
+  name: string | null;
+  avatar?: string | null;
+  phone?: string | null;
+  email?: string;
+}
+
+export type ChatSenderRole = 'client' | 'technician' | 'system' | 'other';
+
+export interface Conversation {
+  reservationId: number;
+  status: ReservationStatus | null;
+  scheduledFor: { date: string; time: string } | null;
+  client: ChatPerson | null;
+  technician: ChatPerson | null;
+  service: { id: number; name: string; category: string } | null;
+  messageCount: number;
+  photoCount: number;
+  startedAt: string;
+  lastMessageAt: string;
+  lastMessage: { content: string; type: string; senderRole: ChatSenderRole; createdAt: string } | null;
+}
+
+export interface ConversationStats {
+  conversations: number;
+  messages: number;
+  photos: number;
+  activeToday: number;
+  activeWeek: number;
+}
+
+export interface ChatMessage {
+  id: number;
+  content: string;
+  type: 'text' | 'image' | 'system' | string;
+  senderId: number;
+  senderRole: ChatSenderRole;
+  createdAt: string;
+  imageUrl?: string | null;
+}
+
+export interface ConversationThread {
+  reservation: {
+    id: number;
+    status: ReservationStatus;
+    date: string;
+    time: string;
+    description: string;
+    location: unknown;
+    emergency: boolean;
+    createdAt: string;
+    completedAt: string | null;
+    cancelledAt: string | null;
+    client: ChatPerson;
+    technician: ChatPerson;
+    service: { id: number; name: string; category: string } | null;
+  };
+  messages: ChatMessage[];
+  hasMore: boolean;
+  totalMessages: number;
+  photosUnavailable: boolean;
+  photoLinkSeconds: number;
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import TopBar from '@/components/layout/TopBar';
+import { useAccess } from '@/components/layout/shell';
 import { adminApi } from '@/lib/api';
 import type { TechnicianPayment, PaymentStats, PaymentLog, PaymentAction, Pagination } from '@/types';
 import {
@@ -241,6 +242,7 @@ function HistoryModal({ tech, onClose }: { tech: TechnicianPayment; onClose: () 
 
 // ── Main page ──────────────────────────────────────────────────────────────
 export default function PaiementsPage() {
+  const canEdit = useAccess().can('payments', 'edit');
   const [stats, setStats]           = useState<PaymentStats | null>(null);
   const [rows, setRows]             = useState<TechnicianPayment[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ total: 0, page: 1, limit: 10, totalPages: 1 });
@@ -429,10 +431,10 @@ export default function PaiementsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <button onClick={() => setAdjusting(t)} title="Modifier le solde"
+                        {canEdit && <button onClick={() => setAdjusting(t)} title="Modifier le solde"
                           className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
                           <Pencil className="w-3.5 h-3.5" /> Modifier
-                        </button>
+                        </button>}
                         <button onClick={() => setHistoryOf(t)} title="Historique"
                           className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                           <History className="w-4 h-4" />

@@ -7,6 +7,8 @@ import {
   LayoutGrid, Users, Wrench, FileText, CalendarDays, CalendarCheck, CreditCard, ShieldCheck,
   Star, MessageSquareText, Bell, LayoutDashboard, MapPin, BarChart3, Settings, Crown, ArrowRight, X,
 } from 'lucide-react';
+import { useShell } from '@/components/layout/shell';
+import { canOpen } from '@/lib/access';
 
 type BadgeKey = 'pending' | 'requests' | 'messages' | 'notifications';
 
@@ -40,6 +42,8 @@ interface SidebarProps {
 
 export default function Sidebar({ pendingCount = 0, requestCount = 0, messageCount = 0, notifCount = 0, open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { me } = useShell();
+  const items = navItems.filter(item => canOpen(me, item.href));
   const badges: Record<BadgeKey, number> = { pending: pendingCount, requests: requestCount, messages: messageCount, notifications: notifCount };
 
   return (
@@ -65,7 +69,7 @@ export default function Sidebar({ pendingCount = 0, requestCount = 0, messageCou
 
         {/* Navigation */}
         <nav className="relative flex-1 overflow-y-auto px-3 pb-4 space-y-1 scrollbar-hide">
-          {navItems.map(({ href, label, icon: Icon, badge }) => {
+          {items.map(({ href, label, icon: Icon, badge }) => {
             const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
             const count = badge ? badges[badge] : 0;
             return (
@@ -92,7 +96,7 @@ export default function Sidebar({ pendingCount = 0, requestCount = 0, messageCou
         </nav>
 
         {/* Upsell */}
-        <div className="relative mx-4 mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+        {canOpen(me, '/dashboard/abonnements') && <div className="relative mx-4 mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <p className="flex items-center gap-2 text-[17px] font-extrabold text-white">
             <Crown className="w-6 h-6 text-[#fbbf24] fill-[#fbbf24]" /> FixPro <span className="text-[#5aa2ff]">Pro</span>
           </p>
@@ -106,7 +110,7 @@ export default function Sidebar({ pendingCount = 0, requestCount = 0, messageCou
           >
             En savoir plus <ArrowRight className="w-4 h-4" />
           </Link>
-        </div>
+        </div>}
       </aside>
     </>
   );

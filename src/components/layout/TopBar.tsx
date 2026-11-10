@@ -21,7 +21,7 @@ interface TopBarProps {
 
 export default function TopBar({ notifCount: notifCountProp }: TopBarProps) {
   const router = useRouter();
-  const { openSidebar, alertCount } = useShell();
+  const { openSidebar, alertCount, me } = useShell();
   const notifCount = notifCountProp ?? alertCount;
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,6 +34,9 @@ export default function TopBar({ notifCount: notifCountProp }: TopBarProps) {
       if (stored) setAdmin(JSON.parse(stored));
     } catch {}
   }, []);
+  // The access loaded by the layout is fresher than the copy saved at login
+  const shown = me ? { name: me.name, role: 'ADMIN', avatar: me.avatar } : admin;
+  const accessLabel = !me || me.full ? 'Accès complet' : 'Accès limité';
 
   // ⌘K / Ctrl+K focuses the search field
   useEffect(() => {
@@ -109,17 +112,17 @@ export default function TopBar({ notifCount: notifCountProp }: TopBarProps) {
             aria-expanded={menuOpen}
             className="flex items-center gap-3 ps-1 pe-2 py-1 rounded-xl hover:bg-[#f3f6fb] transition-colors"
           >
-            {admin?.avatar ? (
+            {shown?.avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={admin.avatar} alt={admin.name} className="w-11 h-11 rounded-full object-cover" />
+              <img src={shown.avatar} alt={shown.name} className="w-11 h-11 rounded-full object-cover" />
             ) : (
               <span className="w-11 h-11 rounded-full bg-gradient-to-br from-[#1d6ff2] to-[#0f4fd1] flex items-center justify-center text-white text-[17px] font-bold">
-                {admin?.name?.[0]?.toUpperCase() ?? 'A'}
+                {shown?.name?.[0]?.toUpperCase() ?? 'A'}
               </span>
             )}
             <span className="text-left hidden sm:block">
-              <span className="block text-[14px] font-bold text-[#0b1533] leading-tight">{admin?.name ?? 'Admin FixPro'}</span>
-              <span className="block text-[12px] text-[#6b7590] mt-0.5">Super Admin</span>
+              <span className="block text-[14px] font-bold text-[#0b1533] leading-tight">{shown?.name ?? 'Admin FixPro'}</span>
+              <span className="block text-[12px] text-[#6b7590] mt-0.5">{accessLabel}</span>
             </span>
             <ChevronDown className={`w-4 h-4 text-[#8a94ad] transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
           </button>
