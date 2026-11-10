@@ -8,6 +8,7 @@ import {
   UserRoundPlus, CircleX, Star, BadgeCheck, CheckCircle2, RefreshCw, Check,
 } from 'lucide-react';
 import TopBar from '@/components/layout/TopBar';
+import { useAccess } from '@/components/layout/shell';
 import { adminApi } from '@/lib/api';
 import type { DashboardStats, Reservation, Review, Service, User, UserStats } from '@/types';
 import { LineChart, Donut, Sparkline } from '@/components/dashboard/charts';
@@ -211,6 +212,7 @@ function ServiceCell({ category }: { category: string | undefined }) {
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const { can } = useAccess();
   const [data, setData] = useState<Data | null>(null);
   const [failed, setFailed] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -220,14 +222,16 @@ export default function DashboardPage() {
   const load = useCallback(() => {
     setLoading(true);
     setFailed(false);
+    // A limited admin only loads the sections their account can see; the rest stays empty
+    const only = <T,>(allowed: boolean, get: () => Promise<T>) => (allowed ? get() : Promise.reject(new Error('Accès restreint')));
     Promise.allSettled([
       adminApi.getDashboardStats(),
-      adminApi.getUserStats(),
-      adminApi.getReservations({ limit: SAMPLE }),
+      only(can('users'), () => adminApi.getUserStats()),
+      only(can('reservations'), () => adminApi.getReservations({ limit: SAMPLE })),
       adminApi.getServices({ limit: 100 }),
-      adminApi.getUsers({ role: 'WORKER', limit: 5 }),
-      adminApi.getUsers({ limit: SAMPLE }),
-      adminApi.getReviews({ limit: 10 }),
+      only(can('users') || can('technicians'), () => adminApi.getUsers({ role: 'WORKER', limit: 5 })),
+      only(can('users'), () => adminApi.getUsers({ limit: SAMPLE })),
+      only(can('reviews'), () => adminApi.getReviews({ limit: 10 })),
     ]).then(([stats, userStats, resv, services, workers, users, reviews]) => {
       const ok = <T,>(r: PromiseSettledResult<T>) => (r.status === 'fulfilled' ? r.value : null);
       if (stats.status === 'rejected') setFailed(true);
@@ -243,7 +247,7 @@ export default function DashboardPage() {
       });
       setLoading(false);
     });
-  }, []);
+  }, [can]);
 
   useEffect(load, [load]);
 

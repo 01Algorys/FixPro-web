@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import TopBar from '@/components/layout/TopBar';
+import { useAccess } from '@/components/layout/shell';
 import { adminApi } from '@/lib/api';
 import type { Category, CategoryInput, Service, ServiceInput, Pagination } from '@/types';
 import {
@@ -206,6 +207,7 @@ function ServiceModal({ service, categories, defaultCategory, onSaved, onClose }
 
 // ── Page ───────────────────────────────────────────────────────────────────
 export default function CategoriesPage() {
+  const canEdit = useAccess().can('categories', 'edit');
   const [categories, setCategories] = useState<Category[]>([]);
   const [catLoading, setCatLoading] = useState(true);
   const [services, setServices]     = useState<Service[]>([]);
@@ -297,10 +299,10 @@ export default function CategoriesPage() {
             <h1 className="text-2xl font-bold text-gray-900">Catégories & Services</h1>
             <p className="text-gray-500 text-sm mt-1">Les catégories et services proposés dans l&apos;application</p>
           </div>
-          <button onClick={() => setEditingCategory('new')}
+          {canEdit && <button onClick={() => setEditingCategory('new')}
             className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
             <Plus className="w-4 h-4" /> Nouvelle catégorie
-          </button>
+          </button>}
         </div>
 
         {error && (
@@ -336,7 +338,7 @@ export default function CategoriesPage() {
                   <Wrench className="w-3.5 h-3.5" /> {c.serviceCount} service(s)
                 </button>
                 <span className="flex items-center gap-1 whitespace-nowrap"><Users className="w-3.5 h-3.5" /> {c.technicianCount} tech.</span>
-                <div className="ml-auto flex items-center gap-0.5">
+                {canEdit && <div className="ml-auto flex items-center gap-0.5">
                   <button onClick={() => move(i, -1)} disabled={i === 0} title="Monter" className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ArrowUp className="w-3.5 h-3.5" /></button>
                   <button onClick={() => move(i, 1)} disabled={i === categories.length - 1} title="Descendre" className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ArrowDown className="w-3.5 h-3.5" /></button>
                   <button onClick={() => run(() => adminApi.updateCategory(c.id, { isActive: !c.isActive }))}
@@ -345,7 +347,7 @@ export default function CategoriesPage() {
                   </button>
                   <button onClick={() => setEditingCategory(c)} title="Modifier" className="p-1 rounded hover:bg-gray-100 hover:text-blue-600"><Pencil className="w-3.5 h-3.5" /></button>
                   <button onClick={() => removeCategory(c)} title="Supprimer" className="p-1 rounded hover:bg-red-50 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
-                </div>
+                </div>}
               </div>
             </div>
           ))}
@@ -354,10 +356,10 @@ export default function CategoriesPage() {
         {/* Services */}
         <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
           <h2 className="text-lg font-semibold text-gray-900">Services</h2>
-          <button onClick={() => setEditingService('new')} disabled={categories.length === 0}
+          {canEdit && <button onClick={() => setEditingService('new')} disabled={categories.length === 0}
             className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 disabled:opacity-50">
             <Plus className="w-4 h-4" /> Nouveau service
-          </button>
+          </button>}
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 mb-3 flex items-center gap-3 flex-wrap">
@@ -413,12 +415,12 @@ export default function CategoriesPage() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">{s.duration ? `${s.duration} min` : '—'}</td>
                       <td className="px-4 py-3">
-                        <button onClick={() => run(() => adminApi.updateService(s.id, { isPopular: !s.isPopular }))} title="Populaire">
+                        <button onClick={() => run(() => adminApi.updateService(s.id, { isPopular: !s.isPopular }))} disabled={!canEdit} title="Populaire">
                           <Star className={`w-4 h-4 ${s.isPopular ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
                         </button>
                       </td>
                       <td className="px-4 py-3">
-                        <button onClick={() => run(() => adminApi.updateService(s.id, { isActive: !s.isActive }))}
+                        <button onClick={() => run(() => adminApi.updateService(s.id, { isActive: !s.isActive }))} disabled={!canEdit}
                           className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${s.isActive ? 'bg-green-500' : 'bg-gray-300'}`}
                           role="switch" aria-checked={s.isActive} title={s.isActive ? 'Désactiver' : 'Activer'}>
                           <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${s.isActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
@@ -426,8 +428,10 @@ export default function CategoriesPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
+                          {canEdit && <>
                           <button onClick={() => setEditingService(s)} title="Modifier" className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Pencil className="w-4 h-4" /></button>
                           <button onClick={() => removeService(s)} title="Supprimer" className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                          </>}
                         </div>
                       </td>
                     </tr>

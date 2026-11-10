@@ -4,13 +4,38 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { jakarta } from '../fonts';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, Lock, X } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
+import TopBar from '@/components/layout/TopBar';
 import { ShellContext } from '@/components/layout/shell';
 import { adminApi } from '@/lib/api';
-import type { Notification } from '@/types';
+import { canAccess, firstAllowedPage, sectionForPath } from '@/lib/access';
+import type { AdminMe, Notification } from '@/types';
 
 const ALERT_POLL_MS = 30_000;
+
+// Shown instead of a page the admin's account can't open (the API refuses its data anyway)
+function Restricted({ home }: { home: string }) {
+  return (
+    <>
+      <TopBar />
+      <main className="flex-1 flex items-center justify-center px-4 py-16">
+        <div className="max-w-sm text-center">
+          <span className="mx-auto w-14 h-14 rounded-2xl bg-[#eef2f8] flex items-center justify-center">
+            <Lock className="w-7 h-7 text-[#5b6680]" />
+          </span>
+          <h1 className="mt-4 text-[20px] font-extrabold">Accès restreint</h1>
+          <p className="mt-1.5 text-[14px] text-[#5b6680]">
+            Votre compte administrateur n&apos;a pas accès à cette section. Demandez à un administrateur principal de l&apos;ajouter à vos accès.
+          </p>
+          <Link href={home} className="mt-5 inline-flex rounded-xl bg-[#1d6ff2] hover:bg-[#2f80ff] px-4 py-2.5 text-[14px] font-semibold text-white">
+            Retour
+          </Link>
+        </div>
+      </main>
+    </>
+  );
+}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -21,6 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [alertCount, setAlertCount] = useState(0);
   const [toast, setToast] = useState<Notification | null>(null);
+  const [me, setMe] = useState<AdminMe | null>(null);
   const lastAlertId = useRef<number | null>(null);
 
   // Poll the admin's unread alerts; a new one pops a toast that stays until closed (plus a browser notification when allowed)
@@ -49,27 +75,50 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.replace('/login');
       return;
     }
-    setReady(true);
 
-    // Load sidebar badge asynchronously
-    adminApi.getDashboardStats()
-      .then(res => setPendingCount(res.data.pendingApprovals + (res.data.documentsToReview ?? 0)))
-      .catch(() => {});
-    adminApi.getReservationStats()
-      .then(res => setRequestCount(res.data.byStatus.PENDING))
-      .catch(() => {});
+    // Which sections this admin may open. If the API can't say (older backend),
+    // show everything: the API still refuses what isn't allowed.
+    let access: AdminMe | null = null;
+    adminApi.getMe()
+      .then(res => {
+        access = res.data;
+        setMe(res.data);
+      })
+      .catch(() => {})
+      .finally(() => {
+        setReady(true);
+        // Sidebar badges, for the sections this admin can see
+        if (canAccess(access, 'dashboard')) {
+          adminApi.getDashboardStats()
+            .then(res => setPendingCount(res.data.pendingApprovals + (res.data.documentsToReview ?? 0)))
+            .catch(() => {});
+        }
+        if (canAccess(access, 'reservations')) {
+          adminApi.getReservationStats()
+            .then(res => setRequestCount(res.data.byStatus.PENDING))
+            .catch(() => {});
+        }
+      });
 
     refreshAlerts();
     const timer = setInterval(refreshAlerts, ALERT_POLL_MS);
     return () => clearInterval(timer);
   }, [router, refreshAlerts]);
 
+  const allowed = canAccess(me, sectionForPath(pathname));
+  const home = firstAllowedPage(me);
+
+  // A limited admin without the overview starts on their first section
+  useEffect(() => {
+    if (ready && !allowed && pathname === '/dashboard') router.replace(home);
+  }, [ready, allowed, pathname, home, router]);
+
   // Close the mobile drawer after navigating
   useEffect(() => setSidebarOpen(false), [pathname]);
 
   const shell = useMemo(
-    () => ({ openSidebar: () => setSidebarOpen(true), alertCount, refreshAlerts }),
-    [alertCount, refreshAlerts]
+    () => ({ openSidebar: () => setSidebarOpen(true), alertCount, refreshAlerts, me }),
+    [alertCount, refreshAlerts, me]
   );
 
   if (!ready) {
@@ -85,7 +134,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className={`${jakarta.className} min-h-screen bg-[#f5f7fb] text-[#0b1533]`}>
         <Sidebar pendingCount={pendingCount} requestCount={requestCount} notifCount={alertCount} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="lg:ml-64 min-h-screen flex flex-col min-w-0">
-          {children}
+          {allowed ? children : pathname === '/dashboard' ? null : <Restricted home={home} />}
         </div>
 
         {toast && (
