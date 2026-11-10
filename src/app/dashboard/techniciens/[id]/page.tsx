@@ -400,7 +400,7 @@ export default function TechnicianDetailsPage() {
               <p className="text-gray-600 whitespace-pre-line">{worker.bio || <span className="text-gray-400">Pas de description</span>}</p>
               <dl className="grid grid-cols-2 gap-y-1.5 pt-2">
                 <dt className="text-gray-500">Expérience</dt><dd>{worker.experience ? `${worker.experience} an(s)` : '—'}</dd>
-                <dt className="text-gray-500">Tarif horaire</dt><dd>{tnd(worker.hourlyRate)}</dd>
+                <dt className="text-gray-500">Prix de départ</dt><dd>{worker.hourlyRate ? `à partir de ${tnd(worker.hourlyRate)}` : 'à convenir'}</dd>
                 <dt className="text-gray-500">Missions terminées</dt><dd>{worker.jobsCompleted}</dd>
                 <dt className="text-gray-500">Gains déclarés</dt><dd>{tnd(worker.totalEarnings ?? 0)}</dd>
                 <dt className="text-gray-500">Position connue</dt>

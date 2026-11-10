@@ -175,7 +175,7 @@ function ServiceModal({ service, categories, defaultCategory, onSaved, onClose }
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>Prix de base (TND)</label>
+              <label className={labelCls} title="L'app n'affiche plus ce prix : les clients voient le prix de chaque technicien">Prix de base (TND, non affiché dans l&apos;app)</label>
               <input inputMode="decimal" value={basePrice} onChange={e => setBasePrice(e.target.value)} className={inputCls} placeholder="—" />
             </div>
             <div>
