@@ -26,6 +26,8 @@ export interface User {
   avatar: string | null;
   role: Role;
   accountStatus: AccountStatus;
+  /** ISO code, e.g. "TN". Clients only see and book technicians of their own country. */
+  country?: string;
   isVerified: boolean;
   location: { address?: string; city?: string; state?: string; zipCode?: string } | null;
   createdAt: string;
