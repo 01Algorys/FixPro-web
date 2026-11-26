@@ -5,6 +5,7 @@ import Link from 'next/link';
 import TopBar from '@/components/layout/TopBar';
 import { useAccess } from '@/components/layout/shell';
 import { adminApi } from '@/lib/api';
+import { CountryBadge, CountryFilter } from '@/components/dashboard/CountryTools';
 import type { User, Pagination, AccountStatus, Service } from '@/types';
 import {
   Wrench, CheckCircle, XCircle, Clock, Search, ChevronLeft, ChevronRight, BadgeCheck, FileCheck2,
@@ -406,6 +407,7 @@ export default function TechniciensPage() {
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
+  const [country, setCountry] = useState('ALL');
   const [page, setPage]     = useState(1);
 
   const [pendingCount, setPendingCount]   = useState(0);
@@ -422,12 +424,13 @@ export default function TechniciensPage() {
       if (search)           params.search = search;
       if (status === 'TO_REVIEW' || status === 'VERIFIED') params.verification = status;
       else if (status !== 'ALL')  params.status = status;
+      if (country !== 'ALL') params.country = country;
       const res = await adminApi.getUsers(params);
       setWorkers(res.data.users);
       setPagination(res.data.pagination);
     } catch {}
     setLoading(false);
-  }, [search, status, page]);
+  }, [search, status, country, page]);
 
   useEffect(() => { fetchWorkers(); }, [fetchWorkers]);
 
@@ -654,7 +657,8 @@ export default function TechniciensPage() {
               <option value="SUSPENDED">Suspendus (impayés)</option>
               <option value="BANNED">Bannis</option>
             </select>
-            <button onClick={() => { setSearch(''); setStatus('ALL'); setPage(1); }}
+            <CountryFilter value={country} onChange={value => { setCountry(value); setPage(1); }} />
+            <button onClick={() => { setSearch(''); setStatus('ALL'); setCountry('ALL'); setPage(1); }}
               className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
               <RefreshCw className="w-3.5 h-3.5" /> Réinitialiser
             </button>
@@ -692,7 +696,11 @@ export default function TechniciensPage() {
                         <Avatar user={w} />
                         <div>
                           <p className="text-sm font-semibold text-gray-900">{w.name}</p>
-                          <p className="text-xs text-gray-400">#USR-{w.id}</p>
+                          <p className="text-xs text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
+                            #USR-{w.id}
+                            <CountryBadge userId={w.id} country={w.country} canEdit
+                              onChanged={next => setWorkers(prev => prev.map(u => u.id === w.id ? { ...u, country: next } : u))} />
+                          </p>
                         </div>
                       </div>
                     </td>

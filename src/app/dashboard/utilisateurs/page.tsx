@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import TopBar from '@/components/layout/TopBar';
 import { useAccess } from '@/components/layout/shell';
 import { adminApi } from '@/lib/api';
+import { CountryBadge, CountryFilter } from '@/components/dashboard/CountryTools';
 import type { User, UserStats, Pagination, AccountStatus } from '@/types';
 import {
   Users, Wrench, UserPlus, Activity, Download, RefreshCw,
@@ -364,6 +365,7 @@ export default function UtilisateursPage() {
   const [search, setSearch]           = useState('');
   const [role, setRole]               = useState('ALL');
   const [status, setStatus]           = useState('ALL');
+  const [country, setCountry]         = useState('ALL');
   const [isVerified, setIsVerified]   = useState('ALL');
   const [startDate, setStartDate]     = useState('');
   const [page, setPage]               = useState(1);
@@ -376,6 +378,7 @@ export default function UtilisateursPage() {
       if (search)             params.search     = search;
       if (role !== 'ALL')     params.role       = role;
       if (status !== 'ALL')   params.status     = status;
+      if (country !== 'ALL')  params.country    = country;
       if (isVerified !== 'ALL') params.isVerified = isVerified;
       if (startDate)          params.startDate  = startDate;
 
@@ -384,7 +387,7 @@ export default function UtilisateursPage() {
       setPagination(res.data.pagination);
     } catch {}
     setLoading(false);
-  }, [search, role, status, isVerified, startDate, page, limit]);
+  }, [search, role, status, country, isVerified, startDate, page, limit]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
   useEffect(() => {
@@ -392,7 +395,7 @@ export default function UtilisateursPage() {
   }, []);
 
   const resetFilters = () => {
-    setSearch(''); setRole('ALL'); setStatus('ALL');
+    setSearch(''); setRole('ALL'); setStatus('ALL'); setCountry('ALL');
     setIsVerified('ALL'); setStartDate(''); setPage(1);
   };
 
@@ -504,6 +507,11 @@ export default function UtilisateursPage() {
             </div>
 
             <div className="flex items-center gap-1">
+              <label className="text-xs text-gray-500 whitespace-nowrap">Pays</label>
+              <CountryFilter value={country} onChange={value => { setCountry(value); setPage(1); }} />
+            </div>
+
+            <div className="flex items-center gap-1">
               <label className="text-xs text-gray-500 whitespace-nowrap">Vérification</label>
               <select value={isVerified} onChange={e => { setIsVerified(e.target.value); setPage(1); }}
                 className="border border-gray-200 rounded-lg text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400">
@@ -563,7 +571,11 @@ export default function UtilisateursPage() {
                         <Avatar user={user} />
                         <div>
                           <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-                          <p className="text-xs text-gray-400">#USR-{user.id}</p>
+                          <p className="text-xs text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
+                            #USR-{user.id}
+                            <CountryBadge userId={user.id} country={user.country} canEdit={user.role !== 'ADMIN'}
+                              onChanged={next => setUsers(prev => prev.map(u => u.id === user.id ? { ...u, country: next } : u))} />
+                          </p>
                         </div>
                       </div>
                     </td>

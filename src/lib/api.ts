@@ -144,6 +144,15 @@ export const adminApi = {
       { method: 'PATCH', body: JSON.stringify({ reason }) }
     ),
 
+  getCountries: () =>
+    request<{ success: boolean; data: { country: string; clients: number; technicians: number }[] }>('/admin/countries'),
+
+  updateUserCountry: (id: number, country: string) =>
+    request<{ success: boolean; data: { id: number; country: string } }>(
+      `/admin/users/${id}/country`,
+      { method: 'PATCH', body: JSON.stringify({ country }) }
+    ),
+
   updateUserStatus: (id: number, accountStatus: string) =>
     request<{ success: boolean; data: import('@/types').User }>(
       `/admin/users/${id}/status`,
